@@ -1,42 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
 <mujoco model="elfin10_l">
-  <compiler angle="radian"/>
-
+  <compiler angle="radian" />
   <asset>
-    <mesh name="elfin_base" content_type="model/stl" file="elfin_base.STL"/>
-    <mesh name="elfin_link1" content_type="model/stl" file="elfin_link1.STL"/>
-    <mesh name="elfin_link2" content_type="model/stl" file="elfin_link2.STL"/>
-    <mesh name="elfin_link3" content_type="model/stl" file="elfin_link3.STL"/>
-    <mesh name="elfin_link4" content_type="model/stl" file="elfin_link4.STL"/>
-    <mesh name="elfin_link5" content_type="model/stl" file="elfin_link5.STL"/>
-    <mesh name="elfin_link6" content_type="model/stl" file="elfin_link6.STL"/>
+    <mesh name="elfin_base" content_type="model/stl" file="elfin_base.STL" />
+    <mesh name="elfin_link1" content_type="model/stl" file="elfin_link1.STL" />
+    <mesh name="elfin_link2" content_type="model/stl" file="elfin_link2.STL" />
+    <mesh name="elfin_link3" content_type="model/stl" file="elfin_link3.STL" />
+    <mesh name="elfin_link4" content_type="model/stl" file="elfin_link4.STL" />
+    <mesh name="elfin_link5" content_type="model/stl" file="elfin_link5.STL" />
+    <mesh name="elfin_link6" content_type="model/stl" file="elfin_link6.STL" />
   </asset>
-
   <worldbody>
-    <geom quat="0.707107 -0.707107 -9.52056e-07 0" type="mesh" rgba="0.86667 0.86667 0.8902 1" mesh="elfin_base"/>
+    <geom quat="0.707107 -0.707107 -9.52056e-07 0" type="mesh" rgba="0.86667 0.86667 0.8902 1" mesh="elfin_base" />
     <body name="elfin_link1" quat="1 2.17321e-06 -6.73204e-07 6.73207e-07">
-      <inertial pos="2.6857e-05 -0.029266 0.1919" quat="0.412913 0.572471 0.412217 0.576071" mass="16.609" diaginertia="0.0461684 0.0388608 0.0343308"/>
-      <joint name="elfin_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-420 420"/>
-      <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link1"/>
+      <inertial pos="2.6857e-05 -0.029266 0.1919" quat="0.412913 0.572471 0.412217 0.576071" mass="16.609" diaginertia="0.0461684 0.0388608 0.0343308" />
+      <joint name="elfin_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-420 420" />
+      <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link1" />
       <body name="elfin_link2" pos="0 0 0.26" quat="0.707105 0.707108 0 0">
-        <inertial pos="1.4387e-05 0.26969 0.14233" quat="0.508293 0.490934 -0.4916 0.508873" mass="8.7235" diaginertia="0.250812 0.24536 0.015605"/>
-        <joint name="elfin_joint2" pos="0 0 0" axis="0 0 1" range="-2.35 2.35" actuatorfrcrange="-420 420"/>
-        <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link2"/>
+        <inertial pos="1.4387e-05 0.26969 0.14233" quat="0.508293 0.490934 -0.4916 0.508873" mass="8.7235" diaginertia="0.250812 0.24536 0.015605" />
+        <joint name="elfin_joint2" pos="0 0 0" axis="0 0 1" range="-2.35 2.35" actuatorfrcrange="-420 420" />
+        <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link2" />
         <body name="elfin_link3" pos="0 0.6 0" quat="-2.59734e-06 0.707105 0.707108 -2.59735e-06">
-          <inertial pos="0.053847 -1.0028e-05 -0.023648" quat="0.392725 0.394114 -0.586223 0.588884" mass="8.28817" diaginertia="0.0153395 0.0131855 0.011546"/>
-          <joint name="elfin_joint3" pos="0 0 0" axis="0 0 1" range="-2.61 2.61" actuatorfrcrange="-200 200"/>
-          <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link3"/>
+          <inertial pos="0.053847 -1.0028e-05 -0.023648" quat="0.392725 0.394114 -0.586223 0.588884" mass="8.28817" diaginertia="0.0153395 0.0131855 0.011546" />
+          <joint name="elfin_joint3" pos="0 0 0" axis="0 0 1" range="-2.61 2.61" actuatorfrcrange="-200 200" />
+          <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link3" />
           <body name="elfin_link4" quat="0.499998 0.5 0.500002 0.5">
-            <inertial pos="2.0335e-05 -0.067673 0.38361" quat="0.99645 0.0841593 0.000268022 -0.00218813" mass="4.09857" diaginertia="0.091784 0.0912663 0.00608148"/>
-            <joint name="elfin_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-200 200"/>
-            <geom type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="elfin_link4"/>
+            <inertial pos="2.0335e-05 -0.067673 0.38361" quat="0.99645 0.0841593 0.000268022 -0.00218813" mass="4.09857" diaginertia="0.091784 0.0912663 0.00608148" />
+            <joint name="elfin_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-200 200" />
+            <geom type="mesh" rgba="0.792157 0.819608 0.933333 1" mesh="elfin_link4" />
             <body name="elfin_link5" pos="0 0 0.7" quat="0.707105 -0.707108 0 0">
-              <inertial pos="-2.5145e-05 -0.039561 -0.01936" quat="0.134089 0.699814 0.179634 0.678242" mass="3.74304" diaginertia="0.00344823 0.00293358 0.00273859"/>
-              <joint name="elfin_joint5" pos="0 0 0" axis="0 0 1" range="-2.56 2.56" actuatorfrcrange="-69 69"/>
-              <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link5"/>
+              <inertial pos="-2.5145e-05 -0.039561 -0.01936" quat="0.134089 0.699814 0.179634 0.678242" mass="3.74304" diaginertia="0.00344823 0.00293358 0.00273859" />
+              <joint name="elfin_joint5" pos="0 0 0" axis="0 0 1" range="-2.56 2.56" actuatorfrcrange="-69 69" />
+              <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link5" />
               <body name="elfin_link6" quat="0.707105 0.707108 0 0">
-                <inertial pos="0.00091682 -0.0048568 0.14017" quat="0.4998 0.500202 -0.511592 0.488131" mass="0.82406" diaginertia="0.000563568 0.000326633 0.000320709"/>
-                <joint name="elfin_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-69 69"/>
-                <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link6"/>
+                <inertial pos="0.00091682 -0.0048568 0.14017" quat="0.4998 0.500202 -0.511592 0.488131" mass="0.82406" diaginertia="0.000563568 0.000326633 0.000320709" />
+                <joint name="elfin_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-69 69" />
+                <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link6" />
               </body>
             </body>
           </body>
@@ -44,4 +43,15 @@
       </body>
     </body>
   </worldbody>
+  <actuator>
+    <motor name="elfin_joint1_motor" joint="elfin_joint1" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint2_motor" joint="elfin_joint2" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint3_motor" joint="elfin_joint3" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint4_motor" joint="elfin_joint4" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint5_motor" joint="elfin_joint5" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint6_motor" joint="elfin_joint6" gear="1" ctrlrange="-3.14 3.14" />
+  </actuator>
+  <keyframe>
+    <key name="home" qpos="0 0 0 0 0 0" />
+  </keyframe>
 </mujoco>

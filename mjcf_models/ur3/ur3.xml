@@ -1,42 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
 <mujoco model="ur3_robot">
-  <compiler angle="radian"/>
-
+  <compiler angle="radian" />
   <asset>
-    <mesh name="base" content_type="model/stl" file="base.stl"/>
-    <mesh name="shoulder" content_type="model/stl" file="shoulder.stl"/>
-    <mesh name="upperarm" content_type="model/stl" file="upperarm.stl"/>
-    <mesh name="forearm" content_type="model/stl" file="forearm.stl"/>
-    <mesh name="wrist1" content_type="model/stl" file="wrist1.stl"/>
-    <mesh name="wrist2" content_type="model/stl" file="wrist2.stl"/>
-    <mesh name="wrist3" content_type="model/stl" file="wrist3.stl"/>
+    <mesh name="base" content_type="model/stl" file="base.stl" />
+    <mesh name="shoulder" content_type="model/stl" file="shoulder.stl" />
+    <mesh name="upperarm" content_type="model/stl" file="upperarm.stl" />
+    <mesh name="forearm" content_type="model/stl" file="forearm.stl" />
+    <mesh name="wrist1" content_type="model/stl" file="wrist1.stl" />
+    <mesh name="wrist2" content_type="model/stl" file="wrist2.stl" />
+    <mesh name="wrist3" content_type="model/stl" file="wrist3.stl" />
   </asset>
-
   <worldbody>
-    <geom quat="-1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="base"/>
+    <geom quat="-1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="base" />
     <body name="shoulder_link" pos="0 0 0.1519" quat="0 0 0 1">
-      <inertial pos="0 0 -0.02" mass="2" diaginertia="0.00809317 0.00809317 0.005625"/>
-      <joint name="shoulder_pan_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-56 56"/>
-      <geom quat="0 0 0 1" type="mesh" rgba="0.7 0.7 0.7 1" mesh="shoulder"/>
+      <inertial pos="0 0 -0.02" mass="2" diaginertia="0.00809317 0.00809317 0.005625" />
+      <joint name="shoulder_pan_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-56 56" />
+      <geom quat="0 0 0 1" type="mesh" rgba="0.7 0.7 0.7 1" mesh="shoulder" />
       <body name="upper_arm_link" quat="0.707107 0.707107 0 0">
-        <inertial pos="-0.11365 0 0.1157" mass="3.42" diaginertia="0.0217285 0.0217285 0.00961875"/>
-        <joint name="shoulder_lift_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-56 56"/>
-        <geom pos="0 0 0.1198" quat="0.5 0.5 -0.5 -0.5" type="mesh" rgba="0.7 0.7 0.7 1" mesh="upperarm"/>
+        <inertial pos="-0.11365 0 0.1157" mass="3.42" diaginertia="0.0217285 0.0217285 0.00961875" />
+        <joint name="shoulder_lift_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-56 56" />
+        <geom pos="0 0 0.1198" quat="0.5 0.5 -0.5 -0.5" type="mesh" rgba="0.7 0.7 0.7 1" mesh="upperarm" />
         <body name="forearm_link" pos="-0.24365 0 0">
-          <inertial pos="-0.16325 0 0.0238" mass="1.26" diaginertia="0.00654681 0.00654681 0.00354375"/>
-          <joint name="elbow_joint" pos="0 0 0" axis="0 0 1" range="-3.14159 3.14159" actuatorfrcrange="-28 28"/>
-          <geom pos="0 0 0.0275" quat="0.5 0.5 -0.5 -0.5" type="mesh" rgba="0.7 0.7 0.7 1" mesh="forearm"/>
+          <inertial pos="-0.16325 0 0.0238" mass="1.26" diaginertia="0.00654681 0.00654681 0.00354375" />
+          <joint name="elbow_joint" pos="0 0 0" axis="0 0 1" range="-3.14159 3.14159" actuatorfrcrange="-28 28" />
+          <geom pos="0 0 0.0275" quat="0.5 0.5 -0.5 -0.5" type="mesh" rgba="0.7 0.7 0.7 1" mesh="forearm" />
           <body name="wrist_1_link" pos="-0.21325 0 0.11235">
-            <inertial pos="0 -0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00161064 0.00161064"/>
-            <joint name="wrist_1_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-12 12"/>
-            <geom pos="0 0 -0.085" quat="0.707107 0.707107 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="wrist1"/>
+            <inertial pos="0 -0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00161064 0.00161064" />
+            <joint name="wrist_1_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-12 12" />
+            <geom pos="0 0 -0.085" quat="0.707107 0.707107 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="wrist1" />
             <body name="wrist_2_link" pos="0 -0.08535 -1.75056e-11" quat="0.707107 0.707107 0 0">
-              <inertial pos="0 0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00157217 0.00157217"/>
-              <joint name="wrist_2_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-12 12"/>
-              <geom pos="0 0 -0.083" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="wrist2"/>
+              <inertial pos="0 0.01 0" quat="0.5 0.5 -0.5 0.5" mass="0.8" diaginertia="0.00225 0.00157217 0.00157217" />
+              <joint name="wrist_2_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-12 12" />
+              <geom pos="0 0 -0.083" quat="1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="wrist2" />
               <body name="wrist_3_link" pos="0 0.0819 -1.6798e-11" quat="0.707107 -0.707107 0 0">
-                <inertial pos="0 0 -0.02" quat="0.5 0.5 -0.5 0.5" mass="0.35" diaginertia="0.0001792 0.000136267 0.000136267"/>
-                <joint name="wrist_3_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-12 12"/>
-                <geom pos="0 -0.00255 -0.082" quat="0.707107 0.707107 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="wrist3"/>
+                <inertial pos="0 0 -0.02" quat="0.5 0.5 -0.5 0.5" mass="0.35" diaginertia="0.0001792 0.000136267 0.000136267" />
+                <joint name="wrist_3_joint" pos="0 0 0" axis="0 0 1" range="-6.28319 6.28319" actuatorfrcrange="-12 12" />
+                <geom pos="0 -0.00255 -0.082" quat="0.707107 0.707107 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="wrist3" />
               </body>
             </body>
           </body>
@@ -44,4 +43,15 @@
       </body>
     </body>
   </worldbody>
+  <actuator>
+    <motor name="shoulder_pan_joint_motor" joint="shoulder_pan_joint" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="shoulder_lift_joint_motor" joint="shoulder_lift_joint" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elbow_joint_motor" joint="elbow_joint" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="wrist_1_joint_motor" joint="wrist_1_joint" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="wrist_2_joint_motor" joint="wrist_2_joint" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="wrist_3_joint_motor" joint="wrist_3_joint" gear="1" ctrlrange="-3.14 3.14" />
+  </actuator>
+  <keyframe>
+    <key name="home" qpos="0 0 0 0 0 0" />
+  </keyframe>
 </mujoco>

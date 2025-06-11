@@ -4,6 +4,8 @@ import mujoco.viewer
 import time
 import os
 from ikpy.chain import Chain
+from scipy.spatial.transform import Rotation as R
+
 
 class Elfin15Kinematics:
     """
@@ -32,17 +34,15 @@ class Elfin15Kinematics:
         # --- 配置 ikpy (用于IK) ---
         if urdf_path is None:
             urdf_path = os.path.join(script_dir, "mjcf_models", "elfin15", "elfin15.urdf")
-        
+
         # 指定正确的基础连杆名称和活动关节掩码
         # 只让索引2-7的6个旋转关节为活动，其他固定关节设为False
         active_mask = [False, False, True, True, True, True, True, True, False]
         self.ik_chain = Chain.from_urdf_file(
-            urdf_path, 
+            urdf_path,
             base_elements=["elfin_base_link"],
             active_links_mask=active_mask
         )
-        
-
 
     def forward_kinematics(self, joint_angles):
         """
@@ -76,14 +76,14 @@ class Elfin15Kinematics:
         """
         if len(joint_angles) != self.model.nq:
             raise ValueError(f"期望的关节角度数量为 {self.model.nq}，但收到了 {len(joint_angles)}")
-        
+
         self.data.qpos[:] = joint_angles
         mujoco.mj_forward(self.model, self.data)
 
         print("🚀 启动可视化窗口...")
         with mujoco.viewer.launch_passive(self.model, self.data) as viewer:
             start_time = time.time()
-            while viewer.is_running() and time.time() - start_time < 10:
+            while viewer.is_running() and time.time() - start_time < 1000:
                 viewer.sync()
             viewer.close()
         print("可视化窗口已关闭。")
@@ -107,7 +107,7 @@ class Elfin15Kinematics:
         if initial_position is None:
             # ikpy 链的总长度
             initial_position = [0.0] * len(self.ik_chain.links)
-        
+
         # 使用 ikpy 计算IK
         # ikpy 的 'all' 模式会同时考虑位置和姿态
         ik_solution = self.ik_chain.inverse_kinematics(
@@ -118,6 +118,43 @@ class Elfin15Kinematics:
         )
         return ik_solution
 
+    def euler_to_rotation_matrix(self, roll, pitch, yaw, degrees=False):
+        """
+        将欧拉角转换为旋转矩阵
+        
+        Args:
+            roll (float): 绕X轴旋转角度
+            pitch (float): 绕Y轴旋转角度  
+            yaw (float): 绕Z轴旋转角度
+            degrees (bool): True表示输入为度数，False表示弧度
+            
+        Returns:
+            np.ndarray: 3x3旋转矩阵
+        """
+        rotation = R.from_euler('xyz', [roll, pitch, yaw], degrees=degrees)
+        return rotation.as_matrix()
+
+    def solve_ik_with_euler(self, target_pos, roll=0, pitch=0, yaw=0, degrees=False, initial_position=None):
+        """
+        使用欧拉角作为目标姿态求解逆运动学
+        
+        Args:
+            target_pos (list or np.ndarray): 目标位置 [x, y, z]
+            roll (float): 绕X轴旋转角度
+            pitch (float): 绕Y轴旋转角度
+            yaw (float): 绕Z轴旋转角度  
+            degrees (bool): True表示角度输入为度数，False表示弧度
+            initial_position (list): 初始关节位置
+            
+        Returns:
+            np.ndarray: IK解的关节角度
+        """
+        target_orientation_matrix = self.euler_to_rotation_matrix(roll, pitch, yaw, degrees)
+        return self.inverse_kinematics(target_pos, target_orientation_matrix, initial_position)
+
+
+
+
 if __name__ == '__main__':
     # --- 初始化 ---
     kin = Elfin15Kinematics()
@@ -125,60 +162,69 @@ if __name__ == '__main__':
     # --- 正向运动学 (FK) 示例 ---
     print("--- 正向运动学示例 (使用ikpy) ---")
     # 定义测试关节角度 (ikpy格式，9个关节)
-    joint_angles_fk_ikpy = np.array([0., 0., 0, 0, 0, -0, 0.4, 0., 0.])
-    
+    joint_angles_fk_ikpy = np.array([0., 0., 0, -0.785, 1.57, 0.785, 1.57, 0., 0.])
+
     # FK在ikpy中计算
     transform_matrix_fk = kin.ik_chain.forward_kinematics(joint_angles_fk_ikpy)
     position_fk = transform_matrix_fk[:3, 3]
     orientation_fk_matrix = transform_matrix_fk[:3, :3]
-    
+
     print(f"  给定关节角 (ikpy格式): {joint_angles_fk_ikpy}")
     print(f"  计算出的末端位置: {position_fk}")
     print(f"  计算出的末端姿态 (旋转矩阵):\n{orientation_fk_matrix}")
     print("-" * 30)
 
-
     # --- 逆向运动学 (IK) 示例 ---
     print("--- 逆向运动学示例 (使用ikpy) ---")
-    # 将ikpy FK计算出的位置和姿态作为IK的目标
+    
+    # 方法1: 使用FK计算出的位置和姿态作为IK的目标
+    # target_position_ik = position_fk.copy()
+    # target_orientation_ik_matrix = orientation_fk_matrix.copy()
+    
+    # 方法2: 使用自定义的目标位置和欧拉角
     target_position_ik = position_fk.copy()
-    target_orientation_ik_matrix = orientation_fk_matrix.copy()
+    target_euler_angles = np.array([180, 0, 0])  # 目标欧拉角 [roll, pitch, yaw] (度)
+    
+    # 使用scipy将欧拉角转换为旋转矩阵
+    rotation = R.from_euler('xyz', target_euler_angles, degrees=True)
+    target_orientation_ik_matrix = rotation.as_matrix()
 
     print(f"  目标位置: {target_position_ik}")
+    print(f"  目标欧拉角 (roll, pitch, yaw): {np.degrees(target_euler_angles)} 度")
     print(f"  目标姿态 (旋转矩阵):\n{target_orientation_ik_matrix}")
 
-    # 计算逆向运动学解 (直接使用ikpy，无坐标转换)
     # 使用ikpy库的原始接口
     ik_solution_full = kin.ik_chain.inverse_kinematics(
         target_position=target_position_ik,
         target_orientation=target_orientation_ik_matrix,
-        orientation_mode="all"
+        orientation_mode="all",
+        initial_position=joint_angles_fk_ikpy
     )
 
-    
     # 由于我们设置了正确的活动关节掩码，现在固定关节的值应该为0
     # 提取索引2-7的关节角度（对应6个旋转驱动关节）
     ik_solution_mujoco = ik_solution_full[2:8]  # 提取索引2-7的关节角度
 
     print(f"\nikpy 完整解 (9个关节): {ik_solution_full}")
     print(f"MuJoCo 需要的解 (6个驱动关节): {ik_solution_mujoco}")
-    print(f"固定关节值检查 - 索引0: {ik_solution_full[0]:.6f}, 索引1: {ik_solution_full[1]:.6f}, 索引8: {ik_solution_full[8]:.6f}")
+    print(
+        f"固定关节值检查 - 索引0: {ik_solution_full[0]:.6f}, 索引1: {ik_solution_full[1]:.6f}, 索引8: {ik_solution_full[8]:.6f}")
 
     # --- ikpy内部一致性验证 ---
     # 使用IK解算出的关节角度在ikpy中进行FK验证
     transform_matrix_verify = kin.ik_chain.forward_kinematics(ik_solution_full)
     final_pos_ikpy = transform_matrix_verify[:3, 3]
     final_orientation_ikpy = transform_matrix_verify[:3, :3]
-    
+
     print("\nikpy内部一致性验证:")
     print(f"  原始FK位置: {position_fk}")
     print(f"  IK解FK位置: {final_pos_ikpy}")
     print(f"  位置误差: {np.linalg.norm(position_fk - final_pos_ikpy):.10f}")
-    
+
     print(f"  原始关节角度: {joint_angles_fk_ikpy}")
     print(f"  IK求解角度: {ik_solution_full}")
     print(f"  关节角度差异: {np.linalg.norm(joint_angles_fk_ikpy - ik_solution_full):.10f}")
-    
+
     # 检查IK是否完美恢复了原始配置
     if np.linalg.norm(position_fk - final_pos_ikpy) < 1e-10:
         print("  ✅ ikpy FK/IK完美一致!")
@@ -190,7 +236,7 @@ if __name__ == '__main__':
     # 提取MuJoCo需要的6个驱动关节角度进行展示
     ik_solution_mujoco = ik_solution_full[2:8]  # 提取索引2-7的关节角度
     print(f"MuJoCo展示用关节角度 (6个): {ik_solution_mujoco}")
-    
+
     # 可视化IK解对应的机器人姿态
     print("启动MuJoCo可视化...")
     kin.visualize(ik_solution_mujoco)

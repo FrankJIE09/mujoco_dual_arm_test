@@ -52,6 +52,6 @@
     <general name="elfin_joint6_actuator" joint="elfin_joint6" gainprm="1" ctrlrange="-3.14 3.14" />
   </actuator>
   <keyframe>
-    <key name="home" qpos="0 0 0 0 0 0" />
+    <key name="home" qpos="0 -0.785 1.57 0.785 1.57 0." ctrl="0 -0.785 1.57 0.785 1.57 0"/>
   </keyframe>
 </mujoco>

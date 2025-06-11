@@ -57,18 +57,43 @@ class MJCFViewer:
             self.data = mujoco.MjData(self.model)
 
             print("✅ 模型加载成功!")
+            
+            # 应用"home" keyframe作为初始状态
+            self.apply_home_keyframe()
+            
             self.print_model_info()
 
             # 初始化关节目标位置
-            for i in range(self.model.njnt):
-                joint_name = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_JOINT, i)
-                if joint_name:
-                    self.joint_targets[joint_name] = 0.0
-                    self.joint_velocities[joint_name] = 0.0
+            # for i in range(self.model.njnt):
+            #     joint_name = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_JOINT, i)
+            #     if joint_name:
+            #         self.joint_targets[joint_name] = 0.0
+            #         self.joint_velocities[joint_name] = 0.0
 
         except Exception as e:
             print(f"❌ 模型加载失败: {e}")
             sys.exit(1)
+
+    def apply_home_keyframe(self):
+        """应用home keyframe作为初始状态"""
+        try:
+            # 查找"home" keyframe
+            home_key_id = None
+            for i in range(self.model.nkey):
+                key_name = mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_KEY, i)
+                if key_name == "home":
+                    home_key_id = i
+                    break
+            
+            if home_key_id is not None:
+                # 应用home keyframe
+                mujoco.mj_resetDataKeyframe(self.model, self.data, home_key_id)
+                print(f"✅ 已应用 'home' keyframe (ID: {home_key_id})")
+            else:
+                print("⚠️  未找到 'home' keyframe，使用默认零位")
+                
+        except Exception as e:
+            print(f"⚠️  应用keyframe失败: {e}")
 
     def print_model_info(self):
         """打印模型信息"""
@@ -134,15 +159,16 @@ class MJCFViewer:
         self.running = True
 
         # 启动控制线程
-        control_thread = threading.Thread(target=self.control_loop, daemon=True)
-        control_thread.start()
+        # control_thread = threading.Thread(target=self.control_loop, daemon=True)
+        # control_thread.start()
 
         # 启动查看器
         with mujoco.viewer.launch_passive(self.model, self.data) as viewer:
             self.viewer = viewer
 
             while self.running and viewer.is_running():
-                self.data.qvel = 10 * (self.data.ctrl-self.data.qpos )
+                if self.data.qvel.__len__() == self.data.ctrl.shape[0]:
+                    self.data.qvel = 10 * (self.data.ctrl-self.data.qpos )
                 # 更新仿真
                 mujoco.mj_step(self.model, self.data)
                 # 同步查看器
@@ -221,9 +247,9 @@ class MJCFViewer:
             self.joint_targets[joint_name] = 0.0
             self.joint_velocities[joint_name] = 0.0
 
-        # 重置仿真状态
-        mujoco.mj_resetData(self.model, self.data)
-        print("✅ 关节已重置")
+        # 重置仿真状态到home keyframe
+        self.apply_home_keyframe()
+        print("✅ 关节已重置到home位置")
 
     def print_current_state(self):
         """打印当前状态"""
@@ -307,7 +333,7 @@ class MJCFViewer:
             print(f"✅ 设置关节 {joint_name} 速度目标: {value:.3f}")
 
 
-def find_mjcf_files(directory="mjcf_models"):
+def find_mjcf_files(directory="./"):
     """查找可用的MJCF文件"""
     if not os.path.exists(directory):
         return []

@@ -44,12 +44,12 @@
     </body>
   </worldbody>
   <actuator>
-    <motor name="elfin_joint1_motor" joint="elfin_joint1" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="elfin_joint2_motor" joint="elfin_joint2" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="elfin_joint3_motor" joint="elfin_joint3" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="elfin_joint4_motor" joint="elfin_joint4" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="elfin_joint5_motor" joint="elfin_joint5" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="elfin_joint6_motor" joint="elfin_joint6" gear="1" ctrlrange="-3.14 3.14" />
+    <general name="elfin_joint1_actuator" joint="elfin_joint1" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="elfin_joint2_actuator" joint="elfin_joint2" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="elfin_joint3_actuator" joint="elfin_joint3" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="elfin_joint4_actuator" joint="elfin_joint4" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="elfin_joint5_actuator" joint="elfin_joint5" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="elfin_joint6_actuator" joint="elfin_joint6" gainprm="1" ctrlrange="-3.14 3.14" />
   </actuator>
   <keyframe>
     <key name="home" qpos="0 0 0 0 0 0" />

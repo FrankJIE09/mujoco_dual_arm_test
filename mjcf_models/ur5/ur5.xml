@@ -44,12 +44,12 @@
     </body>
   </worldbody>
   <actuator>
-    <motor name="shoulder_pan_joint_motor" joint="shoulder_pan_joint" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="shoulder_lift_joint_motor" joint="shoulder_lift_joint" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="elbow_joint_motor" joint="elbow_joint" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="wrist_1_joint_motor" joint="wrist_1_joint" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="wrist_2_joint_motor" joint="wrist_2_joint" gear="1" ctrlrange="-3.14 3.14" />
-    <motor name="wrist_3_joint_motor" joint="wrist_3_joint" gear="1" ctrlrange="-3.14 3.14" />
+    <general name="shoulder_pan_joint_actuator" joint="shoulder_pan_joint" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="shoulder_lift_joint_actuator" joint="shoulder_lift_joint" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="elbow_joint_actuator" joint="elbow_joint" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="wrist_1_joint_actuator" joint="wrist_1_joint" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="wrist_2_joint_actuator" joint="wrist_2_joint" gainprm="1" ctrlrange="-3.14 3.14" />
+    <general name="wrist_3_joint_actuator" joint="wrist_3_joint" gainprm="1" ctrlrange="-3.14 3.14" />
   </actuator>
   <keyframe>
     <key name="home" qpos="0 0 0 0 0 0" />

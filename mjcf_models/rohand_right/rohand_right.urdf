@@ -1,0 +1,1417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="rohand_right">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.041332 -0.0027276 -0.002755"
+        rpy="0 0 0" />
+      <mass
+        value="0.036595" />
+      <inertia
+        ixx="1.1459E-05"
+        ixy="-1.1742E-06"
+        ixz="8.0206E-07"
+        iyy="9.1397E-06"
+        iyz="-2.8447E-07"
+        izz="1.4194E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="if_slider_link">
+    <inertial>
+      <origin
+        xyz="-0.0031457 -2.6226E-07 -4.3201E-09"
+        rpy="0 0 0" />
+      <mass
+        value="0.00019199" />
+      <inertia
+        ixx="1.2651E-09"
+        ixy="-1.4632E-13"
+        ixz="1.0091E-15"
+        iyy="1.5829E-09"
+        iyz="-3.06E-11"
+        izz="1.9298E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_slider_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_slider_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="if_slider_link"
+    type="prismatic">
+    <origin
+      xyz="-0.093144 -0.028224 -0.0058391"
+      rpy="0 0 0.08298" />
+    <parent
+      link="base_link" />
+    <child
+      link="if_slider_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.003"
+      upper="0.016"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="if_slider_abpart_link">
+    <inertial>
+      <origin
+        xyz="-0.0102575899321558 -6.32308294404305E-08 -0.00167499709943896"
+        rpy="0 0 0" />
+      <mass
+        value="0.000457378804599453" />
+      <inertia
+        ixx="2.48984482153407E-09"
+        ixy="1.0700839628948E-13"
+        ixz="-3.31080671012347E-09"
+        iyy="1.65925831326633E-08"
+        iyz="5.58964580326077E-14"
+        izz="1.63812569658288E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_slider_abpart_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_slider_abpart_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="if_slider_abpart_link"
+    type="continuous">
+    <origin
+      xyz="-0.0071723 0 0"
+      rpy="0.087236 -0.0072229 -0.0006317" />
+    <parent
+      link="if_slider_link" />
+    <child
+      link="if_slider_abpart_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="if_proximal_link">
+    <inertial>
+      <origin
+        xyz="-0.0160204934032901 9.81029685205165E-05 -0.00754049833241996"
+        rpy="0 0 0" />
+      <mass
+        value="0.00155087052217806" />
+      <inertia
+        ixx="6.86666515612948E-08"
+        ixy="-5.82419013121868E-12"
+        ixz="-2.7130126140739E-08"
+        iyy="1.54848804600849E-07"
+        iyz="7.16829768083905E-13"
+        izz="1.62392935334733E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_proximal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_proximal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="if_proximal_link"
+    type="continuous">
+    <origin
+      xyz="-0.11269 -0.030673 0.0027221"
+      rpy="0.087311 -0.0072291 0.082399" />
+    <parent
+      link="base_link" />
+    <child
+      link="if_proximal_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="if_distal_link">
+    <inertial>
+      <origin
+        xyz="-0.0140541607061366 9.48701070273839E-05 -0.0187680618248347"
+        rpy="0 0 0" />
+      <mass
+        value="0.00416402211038926" />
+      <inertia
+        ixx="3.83688885186779E-07"
+        ixy="3.50497231042531E-13"
+        ixz="-2.50616537675023E-07"
+        iyy="5.74504419251016E-07"
+        iyz="3.75929223940367E-12"
+        izz="2.6654066430297E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_distal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_distal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="if_distal_link"
+    type="continuous">
+    <origin
+      xyz="-0.034061 0 -0.011405"
+      rpy="-2.578E-05 0 0.00010194" />
+    <parent
+      link="if_proximal_link" />
+    <child
+      link="if_distal_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="if_connecting_link">
+    <inertial>
+      <origin
+        xyz="-0.0115270551115093 9.99145339485169E-05 -0.0122780773694478"
+        rpy="0 0 0" />
+      <mass
+        value="0.000247117851989122" />
+      <inertia
+        ixx="1.56882407843674E-08"
+        ixy="7.4418753170938E-17"
+        ixz="-1.64060040300906E-08"
+        iyy="3.38395479517934E-08"
+        iyz="2.28813244896348E-16"
+        izz="1.81924934276837E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_connecting_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="if_connecting_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="if_connecting_link"
+    type="continuous">
+    <origin
+      xyz="-0.12005 -0.031698 0.0071031"
+      rpy="0.08729 -0.0072273 0.082399" />
+    <parent
+      link="base_link" />
+    <child
+      link="if_connecting_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="mf_slider_link">
+    <inertial>
+      <origin
+        xyz="-0.0031456595092882 -2.63265843651259E-07 1.89992385183843E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.000191987434205271" />
+      <inertia
+        ixx="1.26508708829968E-09"
+        ixy="-1.46260373385772E-13"
+        ixz="1.3831355637953E-14"
+        iyy="1.58019830746249E-09"
+        iyz="-4.7994280027338E-14"
+        izz="1.93247154369308E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_slider_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_slider_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="mf_slider_link"
+    type="prismatic">
+    <origin
+      xyz="-0.095792 -0.010334 -0.0015731"
+      rpy="0 -0.00010039 0.01323" />
+    <parent
+      link="base_link" />
+    <child
+      link="mf_slider_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.003"
+      upper="0.016"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="mf_slider_abpart_link">
+    <inertial>
+      <origin
+        xyz="-0.010217775059074 -6.32442323893201E-08 -0.00190285071343799"
+        rpy="0 0 0" />
+      <mass
+        value="0.000457378800703002" />
+      <inertia
+        ixx="2.64404248422689E-09"
+        ixy="1.05773739222771E-13"
+        ixz="-3.61658501306062E-09"
+        iyy="1.65925829366943E-08"
+        iyz="5.8267856134776E-14"
+        izz="1.62270590949551E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_slider_abpart_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_slider_abpart_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="mf_slider_abpart_link"
+    type="continuous">
+    <origin
+      xyz="-0.0071723 0 0"
+      rpy="6.2891E-05 9.9576E-05 0" />
+    <parent
+      link="mf_slider_link" />
+    <child
+      link="mf_slider_abpart_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="mf_proximal_link">
+    <inertial>
+      <origin
+        xyz="-0.0178813399640914 -9.99811948104567E-05 -0.00978209387613135"
+        rpy="0 0 0" />
+      <mass
+        value="0.00189595262592985" />
+      <inertia
+        ixx="9.59615008654022E-08"
+        ixy="1.38744942461353E-12"
+        ixz="-5.32051287570021E-08"
+        iyy="2.34143446586113E-07"
+        iyz="2.76724405303646E-12"
+        izz="2.28130751185031E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_proximal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_proximal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="mf_proximal_link"
+    type="continuous">
+    <origin
+      xyz="-0.11597 -0.010478 0.0070301"
+      rpy="0 0 0.013245" />
+    <parent
+      link="base_link" />
+    <child
+      link="mf_proximal_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="mf_distal_link">
+    <inertial>
+      <origin
+        xyz="-0.0142680920032852 -9.48989379989471E-05 -0.0186057836388645"
+        rpy="0 0 0" />
+      <mass
+        value="0.00416397498628892" />
+      <inertia
+        ixx="3.77922578713359E-07"
+        ixy="1.47241080032493E-12"
+        ixz="-2.51883705316163E-07"
+        iyy="5.74486395227848E-07"
+        iyz="5.20487553285058E-12"
+        izz="2.72288902536836E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_distal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_distal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="mf_distal_link"
+    type="continuous">
+    <origin
+      xyz="-0.038293 0 -0.014673"
+      rpy="0 0 0" />
+    <parent
+      link="mf_proximal_link" />
+    <child
+      link="mf_distal_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="mf_connecting_link">
+    <inertial>
+      <origin
+        xyz="-0.0133606173193819 -9.99466348053282E-05 -0.0138038020275645"
+        rpy="0 0 0" />
+      <mass
+        value="0.000270239292283242" />
+      <inertia
+        ixx="2.16815846311299E-08"
+        ixy="9.43729027103105E-16"
+        ixz="-2.34654124491047E-08"
+        iyy="4.81418389315111E-08"
+        iyz="6.30328822434381E-16"
+        izz="2.65052947372461E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_connecting_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="mf_connecting_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="mf_connecting_link"
+    type="continuous">
+    <origin
+      xyz="-0.12339 -0.010599 0.01143"
+      rpy="-2.1055E-05 0 0.013245" />
+    <parent
+      link="base_link" />
+    <child
+      link="mf_connecting_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rf_slider_link">
+    <inertial>
+      <origin
+        xyz="-0.00314565916840716 -2.56363491213385E-07 1.7524263946217E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.000191987414464228" />
+      <inertia
+        ixx="1.26508706649354E-09"
+        ixy="-1.43962084909507E-13"
+        ixz="1.35462542124564E-14"
+        iyy="1.58019811518953E-09"
+        iyz="-4.80847255980298E-14"
+        izz="1.93247122320492E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_slider_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_slider_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_slider_link"
+    type="prismatic">
+    <origin
+      xyz="-0.093268 0.008304 -0.0023179"
+      rpy="0 -9.5082E-05 -0.056587" />
+    <parent
+      link="base_link" />
+    <child
+      link="rf_slider_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.003"
+      upper="0.016"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="rf_slider_abpart_link">
+    <inertial>
+      <origin
+        xyz="-0.0102282711939629 -6.32911592336749E-08 -0.00184560039387518"
+        rpy="0 0 0" />
+      <mass
+        value="0.000457378787987907" />
+      <inertia
+        ixx="2.60396267714966E-09"
+        ixy="1.06219540380677E-13"
+        ixz="-3.54029314703254E-09"
+        iyy="1.65925823769694E-08"
+        iyz="5.7676815007924E-14"
+        izz="1.62671382860325E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_slider_abpart_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_slider_abpart_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_slider_abpart_link"
+    type="continuous">
+    <origin
+      xyz="-0.0071723 0 0"
+      rpy="6.3003E-05 9.8956E-05 0" />
+    <parent
+      link="rf_slider_link" />
+    <child
+      link="rf_slider_abpart_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rf_proximal_link">
+    <inertial>
+      <origin
+        xyz="-0.0157485382837062 9.81655693502587E-05 -0.00809308565897243"
+        rpy="0 0 0" />
+      <mass
+        value="0.00155087002589296" />
+      <inertia
+        ixx="7.0666028460871E-08"
+        ixy="-6.33539204694724E-12"
+        ixz="-3.03213325723109E-08"
+        iyy="1.54849416075973E-07"
+        iyz="3.51574580416881E-13"
+        izz="1.60394200277516E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_proximal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_proximal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_proximal_link"
+    type="continuous">
+    <origin
+      xyz="-0.11324 0.0093636 0.0062802"
+      rpy="0 0 -0.056602" />
+    <parent
+      link="base_link" />
+    <child
+      link="rf_proximal_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rf_distal_link">
+    <inertial>
+      <origin
+        xyz="-0.0127273124122472 9.43185663805531E-05 -0.0196849707314059"
+        rpy="0 0 0" />
+      <mass
+        value="0.0041628395404436" />
+      <inertia
+        ixx="4.17200241286007E-07"
+        ixy="-5.15152984008046E-12"
+        ixz="-2.40011154910896E-07"
+        iyy="5.74060263939275E-07"
+        iyz="-8.77894853400892E-12"
+        izz="2.32592056123129E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_distal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_distal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_distal_link"
+    type="continuous">
+    <origin
+      xyz="-0.033643 0 -0.012583"
+      rpy="-2.931E-05 0 0.00010098" />
+    <parent
+      link="rf_proximal_link" />
+    <child
+      link="rf_distal_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="rf_connecting_link">
+    <inertial>
+      <origin
+        xyz="-0.0110232789992659 9.99157289005275E-05 -0.0127323022066108"
+        rpy="0 0 0" />
+      <mass
+        value="0.000247117839790627" />
+      <inertia
+        ixx="1.70125349212269E-08"
+        ixy="1.72551893606158E-16"
+        ixz="-1.64535584116652E-08"
+        iyy="3.38395443442317E-08"
+        iyz="3.18871140367486E-16"
+        izz="1.68681956805068E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_connecting_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="rf_connecting_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="rf_connecting_link"
+    type="continuous">
+    <origin
+      xyz="-0.12065 0.0097568 0.010679"
+      rpy="-2.1021E-05 0 -0.056602" />
+    <parent
+      link="base_link" />
+    <child
+      link="rf_connecting_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="lf_slider_link">
+    <inertial>
+      <origin
+        xyz="-0.00314565938149086 -2.55454723797899E-07 4.0220057638974E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.000191987419584901" />
+      <inertia
+        ixx="1.26508710418323E-09"
+        ixy="-1.42725165187337E-13"
+        ixz="2.61545141493951E-14"
+        iyy="1.58287065683019E-09"
+        iyz="3.05655935831741E-11"
+        izz="1.92979925047847E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_slider_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_slider_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_slider_link"
+    type="prismatic">
+    <origin
+      xyz="-0.089579 0.0264 -0.0048372"
+      rpy="0 -8.2704E-05 -0.11831" />
+    <parent
+      link="base_link" />
+    <child
+      link="lf_slider_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.003"
+      upper="0.016"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="lf_slider_abpart_link">
+    <inertial>
+      <origin
+        xyz="-0.0102365547623531 -6.32922619245302E-08 -0.00179908840086081"
+        rpy="0 0 0" />
+      <mass
+        value="0.000457378787584006" />
+      <inertia
+        ixx="2.57206029279565E-09"
+        ixy="1.06482146357475E-13"
+        ixz="-3.47804111085514E-09"
+        iyy="1.6592582377945E-08"
+        iyz="5.71910489000597E-14"
+        izz="1.62990406683393E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_slider_abpart_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_slider_abpart_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_slider_abpart_link"
+    type="continuous">
+    <origin
+      xyz="-0.0071723 0 0"
+      rpy="-0.087286 -0.010238 0.00089593" />
+    <parent
+      link="lf_slider_link" />
+    <child
+      link="lf_slider_abpart_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="lf_proximal_link">
+    <inertial>
+      <origin
+        xyz="-0.0140890001128864 -9.9936836855833E-05 -0.00739805228620738"
+        rpy="0 0 0" />
+      <mass
+        value="0.00136675205423018" />
+      <inertia
+        ixx="6.23133235507286E-08"
+        ixy="-5.93151549116493E-13"
+        ixz="-2.07711063261061E-08"
+        iyy="1.12813602363438E-07"
+        iyz="1.56840204632607E-13"
+        izz="1.20862679242081E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_proximal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_proximal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_proximal_link"
+    type="continuous">
+    <origin
+      xyz="-0.10947 0.029629 0.003719"
+      rpy="-0.087223 -0.010327 -0.11755" />
+    <parent
+      link="base_link" />
+    <child
+      link="lf_proximal_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="lf_distal_link">
+    <inertial>
+      <origin
+        xyz="-0.00834876674620498 0.000122936983930986 -0.0140838049363506"
+        rpy="0 0 0" />
+      <mass
+        value="0.00263003860844415" />
+      <inertia
+        ixx="1.24022271450203E-07"
+        ixy="6.09239251708664E-10"
+        ixz="-5.50998522019595E-08"
+        iyy="1.53209162566392E-07"
+        iyz="1.06950125643302E-09"
+        izz="7.25262262271823E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_distal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_distal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_distal_link"
+    type="continuous">
+    <origin
+      xyz="-0.029737 -5.0315E-05 -0.011632"
+      rpy="-2.1055E-05 0 0" />
+    <parent
+      link="lf_proximal_link" />
+    <child
+      link="lf_distal_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="lf_connecting_link">
+    <inertial>
+      <origin
+        xyz="-0.00897992690333455 -9.99113211243262E-05 -0.0119937835691729"
+        rpy="0 0 0" />
+      <mass
+        value="0.000221221175136363" />
+      <inertia
+        ixx="1.44105545565938E-08"
+        ixy="3.6211482744251E-16"
+        ixz="-1.20035228823852E-08"
+        iyy="2.51146031703772E-08"
+        iyz="7.51025241494489E-17"
+        izz="1.07409192783666E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_connecting_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="lf_connecting_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="lf_connecting_link"
+    type="continuous">
+    <origin
+      xyz="-0.1168 0.030887 0.0081016"
+      rpy="-0.087244 -0.01033 -0.11755" />
+    <parent
+      link="base_link" />
+    <child
+      link="lf_connecting_link" />
+    <axis
+      xyz="0 1 0" />
+  </joint>
+  <link
+    name="th_root_link">
+    <inertial>
+      <origin
+        xyz="0.00191345379134385 -0.00532764095046059 -0.00208402756293028"
+        rpy="0 0 0" />
+      <mass
+        value="0.0021989473502463" />
+      <inertia
+        ixx="1.74015453286515E-07"
+        ixy="-5.93463838059496E-08"
+        ixz="-5.14790610827186E-09"
+        iyy="1.46420808685564E-07"
+        iyz="-1.16817939815786E-08"
+        izz="1.72806124592841E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_root_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_root_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="th_root_link"
+    type="revolute">
+    <origin
+      xyz="-0.046082 -0.019846 -0.022958"
+      rpy="-0.0028701 -0.21841 0.013245" />
+    <parent
+      link="base_link" />
+    <child
+      link="th_root_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.034"
+      upper="1.605"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="th_proximal_link">
+    <inertial>
+      <origin
+        xyz="0.0173186194907137 -0.00804890181473508 -0.00337071632684033"
+        rpy="0 0 0" />
+      <mass
+        value="0.00415628386649693" />
+      <inertia
+        ixx="2.66072049915062E-07"
+        ixy="2.70382820946718E-07"
+        ixz="-2.29988698819839E-08"
+        iyy="1.00882965701521E-06"
+        iyz="1.7066289344705E-08"
+        izz="1.17420639165492E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_proximal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_proximal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="th_proximal_link"
+    type="continuous">
+    <origin
+      xyz="-0.0067545 -0.020973 -0.0027602"
+      rpy="3.1387 -3.7078E-05 3.1287" />
+    <parent
+      link="th_root_link" />
+    <child
+      link="th_proximal_link" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="th_slider_link">
+    <inertial>
+      <origin
+        xyz="0.00651854985489098 -0.00153418223535846 -0.000148409550656703"
+        rpy="0 0 0" />
+      <mass
+        value="0.00106239517277624" />
+      <inertia
+        ixx="2.65433024940106E-08"
+        ixy="-1.4543968019195E-09"
+        ixz="-1.40630518437044E-10"
+        iyy="7.9882959221139E-08"
+        iyz="1.72888102631938E-09"
+        izz="6.2173353689623E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_slider_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_slider_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="th_slider_link"
+    type="prismatic">
+    <origin
+      xyz="0.010802 -0.0076387 0.00016532"
+      rpy="3.0452 0 -0.46375" />
+    <parent
+      link="th_proximal_link" />
+    <child
+      link="th_slider_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.003"
+      upper="0.008"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="th_connecting_link">
+    <inertial>
+      <origin
+        xyz="0.00451236293809867 -0.00144319956237158 6.77076848574661E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.000339222396740572" />
+      <inertia
+        ixx="2.37317200418532E-09"
+        ixy="8.11963675409298E-10"
+        ixz="-4.86527723890862E-14"
+        iyy="5.46183572013731E-09"
+        iyz="1.00832711359225E-14"
+        izz="5.08103444598271E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_connecting_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_connecting_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="th_connecting_link"
+    type="continuous">
+    <origin
+      xyz="0.0303 0.00014544 0.00015825"
+      rpy="-3.0553 0.043068 -0.46189" />
+    <parent
+      link="th_slider_link" />
+    <child
+      link="th_connecting_link" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+  <link
+    name="th_distal_link">
+    <inertial>
+      <origin
+        xyz="0.00825371283452267 -0.00781062913006283 -0.00189928147493764"
+        rpy="0 0 0" />
+      <mass
+        value="0.00503423118877467" />
+      <inertia
+        ixx="1.99368899772569E-07"
+        ixy="5.8123778322395E-08"
+        ixz="-6.38608160732725E-12"
+        iyy="2.67971270637988E-07"
+        iyz="-8.07031711553604E-13"
+        izz="2.35241522802837E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_distal_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="th_distal_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="th_distal_link"
+    type="continuous">
+    <origin
+      xyz="0.050881 -0.013011 0.0020153"
+      rpy="0 0 0" />
+    <parent
+      link="th_proximal_link" />
+    <child
+      link="th_distal_link" />
+    <axis
+      xyz="0 0 -1" />
+  </joint>
+</robot>

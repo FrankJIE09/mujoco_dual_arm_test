@@ -1,0 +1,236 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="elfin15_rohand_combined">
+  <compiler angle="radian" />
+  <asset>
+    <mesh name="elfin_base" file="elfin_base.STL" />
+    <mesh name="elfin_link1" file="elfin_link1.STL" />
+    <mesh name="elfin_link2" file="elfin_link2.STL" />
+    <mesh name="elfin_link3" file="elfin_link3.STL" />
+    <mesh name="elfin_link4" file="elfin_link4.STL" />
+    <mesh name="elfin_link5" file="elfin_link5.STL" />
+    <mesh name="elfin_link6" file="elfin_link6.STL" />
+    <mesh name="rohand_base_link" file="rohand_base_link.STL" />
+    <mesh name="rohand_if_slider_link" file="rohand_if_slider_link.STL" />
+    <mesh name="rohand_if_slider_abpart_link" file="rohand_if_slider_abpart_link.STL" />
+    <mesh name="rohand_if_proximal_link" file="rohand_if_proximal_link.STL" />
+    <mesh name="rohand_if_distal_link" file="rohand_if_distal_link.STL" />
+    <mesh name="rohand_if_connecting_link" file="rohand_if_connecting_link.STL" />
+    <mesh name="rohand_mf_slider_link" file="rohand_mf_slider_link.STL" />
+    <mesh name="rohand_mf_slider_abpart_link" file="rohand_mf_slider_abpart_link.STL" />
+    <mesh name="rohand_mf_proximal_link" file="rohand_mf_proximal_link.STL" />
+    <mesh name="rohand_mf_distal_link" file="rohand_mf_distal_link.STL" />
+    <mesh name="rohand_mf_connecting_link" file="rohand_mf_connecting_link.STL" />
+    <mesh name="rohand_rf_slider_link" file="rohand_rf_slider_link.STL" />
+    <mesh name="rohand_rf_slider_abpart_link" file="rohand_rf_slider_abpart_link.STL" />
+    <mesh name="rohand_rf_proximal_link" file="rohand_rf_proximal_link.STL" />
+    <mesh name="rohand_rf_distal_link" file="rohand_rf_distal_link.STL" />
+    <mesh name="rohand_rf_connecting_link" file="rohand_rf_connecting_link.STL" />
+    <mesh name="rohand_lf_slider_link" file="rohand_lf_slider_link.STL" />
+    <mesh name="rohand_lf_slider_abpart_link" file="rohand_lf_slider_abpart_link.STL" />
+    <mesh name="rohand_lf_proximal_link" file="rohand_lf_proximal_link.STL" />
+    <mesh name="rohand_lf_distal_link" file="rohand_lf_distal_link.STL" />
+    <mesh name="rohand_lf_connecting_link" file="rohand_lf_connecting_link.STL" />
+    <mesh name="rohand_th_root_link" file="rohand_th_root_link.STL" />
+    <mesh name="rohand_th_proximal_link" file="rohand_th_proximal_link.STL" />
+    <mesh name="rohand_th_slider_link" file="rohand_th_slider_link.STL" />
+    <mesh name="rohand_th_connecting_link" file="rohand_th_connecting_link.STL" />
+    <mesh name="rohand_th_distal_link" file="rohand_th_distal_link.STL" />
+  </asset>
+  <worldbody>
+    <geom type="mesh" rgba="0.866667 0.866667 0.890196 1" mesh="elfin_base" />
+    <body name="elfin_link1" pos="0 0 0.262">
+      <inertial pos="-1.88838e-06 -0.00357535 -0.0358732" quat="0.998738 0.0502277 4.92096e-05 -7.54994e-05" mass="26.1753" diaginertia="0.235853 0.212365 0.1579" />
+      <joint name="elfin_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-104 104" damping="1.0" frictionloss="0.1" />
+      <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link1" />
+      <body name="elfin_link2" quat="0.707105 0.707108 0 0">
+        <inertial pos="2.05933e-05 0.292081 0.154042" quat="0.513249 0.485908 -0.486417 0.513681" mass="25.7827" diaginertia="1.61404 1.59116 0.0559177" />
+        <joint name="elfin_joint2" pos="0 0 0" axis="0 0 1" range="-2.35 2.35" actuatorfrcrange="-104 104" damping="1.0" frictionloss="0.1" />
+        <geom type="mesh" rgba="0.890196 0.890196 0.913725 1" mesh="elfin_link2" />
+        <body name="elfin_link3" pos="0 0.73 0" quat="-2.59734e-06 0.707105 0.707108 -2.59735e-06">
+          <inertial pos="0.0361013 -2.09104e-06 -0.00436987" quat="0.529158 0.469078 0.469085 0.529072" mass="7.87585" diaginertia="0.036645 0.0320625 0.019885" />
+          <joint name="elfin_joint3" pos="0 0 0" axis="0 0 1" range="-2.61 2.61" actuatorfrcrange="-69 69" damping="1.0" frictionloss="0.1" />
+          <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link3" />
+          <body name="elfin_link4" quat="0.499998 0.5 0.500002 0.5">
+            <inertial pos="3.69862e-05 -0.0650226 0.320849" quat="0.992592 0.121493 0.000259111 -0.000578748" mass="7.61388" diaginertia="0.16194 0.159247 0.0128573" />
+            <joint name="elfin_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-69 69" damping="1.0" frictionloss="0.1" />
+            <geom type="mesh" rgba="0.890196 0.890196 0.913725 1" mesh="elfin_link4" />
+            <body name="elfin_link5" pos="0 0 0.57" quat="0.707105 -0.707108 0 0">
+              <inertial pos="6.77522e-06 -0.0250232 -0.002491" quat="0.754143 0.656711 0.00028124 -0.000151073" mass="3.39285" diaginertia="0.00944879 0.00740998 0.00543183" />
+              <joint name="elfin_joint5" pos="0 0 0" axis="0 0 1" range="-2.56 2.56" actuatorfrcrange="-34 34" damping="1.0" frictionloss="0.1" />
+              <geom type="mesh" rgba="0.890196 0.890196 0.913725 1" mesh="elfin_link5" />
+              <body name="elfin_link6" quat="0.707105 0.707108 0 0">
+                <inertial pos="6.22099e-05 -0.00431405 0.139458" quat="0.506404 0.493377 -0.485637 0.514093" mass="0.352384" diaginertia="0.000345682 0.000280644 0.000240015" />
+                <joint name="elfin_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" actuatorfrcrange="-34 34" damping="1.0" frictionloss="0.1" />
+                <geom type="mesh" rgba="1 1 1 1" mesh="elfin_link6" />
+                <body name="hand_attachment" pos="0.0 0.0 0.171" quat="7.07106781e-01 5.55111512e-17 7.07106781e-01 5.55111512e-17">
+                  <geom type="mesh" rgba="1 1 1 1" mesh="rohand_base_link" />
+                  <body name="rohand_if_slider_link" pos="-0.093142 0.028393 -0.006081" quat="0.999139 0 0 -0.0414781">
+                    <inertial pos="-0.0031457 2.75882e-07 -4.84121e-09" quat="0.0307312 0.706439 0.0307312 0.706439" mass="0.000191989" diaginertia="1.93254e-09 1.58025e-09 1.26509e-09" />
+                    <joint name="rohand_if_slider_link" pos="0 0 0" axis="1 0 0" type="slide" range="-0.003 0.016" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_if_slider_link" />
+                    <body name="rohand_if_slider_abpart_link" pos="-0.0071723 0 0" quat="0.999042 -0.0436027 -0.00362178 0.000158074">
+                      <inertial pos="-0.0102576 6.32255e-08 -0.001675" quat="0 0.624269 0 0.781209" mass="0.000457379" diaginertia="1.713e-08 1.65926e-08 1.74112e-09" />
+                      <joint name="rohand_if_slider_abpart_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_if_slider_abpart_link" />
+                    </body>
+                  </body>
+                  <body name="rohand_if_proximal_link" pos="-0.11269 0.030843 0.0024802" quat="0.998186 -0.043753 -0.00181054 -0.0413059">
+                    <inertial pos="-0.0160192 -9.85142e-05 -0.00754047" quat="6.36225e-05 0.608518 4.02912e-05 0.79354" mass="0.00155055" diaginertia="1.69649e-07 1.54822e-07 6.13745e-08" />
+                    <joint name="rohand_if_proximal_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_if_proximal_link" />
+                    <body name="rohand_if_distal_link" pos="-0.034061 0 -0.011405" quat="1 1.289e-05 -6.57003e-10 -5.097e-05">
+                      <inertial pos="-0.0140538 -9.47216e-05 -0.0187678" quat="0.944307 5.9785e-06 0.329065 -2.08334e-06" mass="0.00416344" diaginertia="5.82315e-07 5.74333e-07 6.77387e-08" />
+                      <joint name="rohand_if_distal_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_if_distal_link" />
+                    </body>
+                  </body>
+                  <body name="rohand_if_connecting_link" pos="-0.12005 0.031867 0.0068612" quat="0.998187 -0.0437425 -0.00181008 -0.0413059">
+                    <inertial pos="-0.0115271 -9.99155e-05 -0.0122781" quat="0.64801 0.282989 0.282989 0.64801" mass="0.000247118" diaginertia="3.38395e-08 3.33941e-08 4.86667e-10" />
+                    <joint name="rohand_if_connecting_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_if_connecting_link" />
+                  </body>
+                  <body name="rohand_mf_slider_link" pos="-0.095789 0.010504 -0.001815" quat="0.999978 -3.32038e-07 -5.01939e-05 -0.00661495">
+                    <inertial pos="-0.0031457 2.77039e-07 1.87932e-08" quat="0 0.707107 0 0.707107" mass="0.000191989" diaginertia="1.93254e-09 1.58025e-09 1.26509e-09" />
+                    <joint name="rohand_mf_slider_link" pos="0 0 0" axis="1 0 0" type="slide" range="-0.003 0.016" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_mf_slider_link" />
+                    <body name="rohand_mf_slider_abpart_link" pos="-0.0071723 0 0" quat="1 -3.14455e-05 4.9788e-05 1.56561e-09">
+                      <inertial pos="-0.0102178 6.32373e-08 -0.00190285" quat="0 0.615538 0 0.788107" mass="0.000457379" diaginertia="1.713e-08 1.65926e-08 1.74112e-09" />
+                      <joint name="rohand_mf_slider_abpart_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_mf_slider_abpart_link" />
+                    </body>
+                  </body>
+                  <body name="rohand_mf_proximal_link" pos="-0.11597 0.010647 0.0067882" quat="0.999978 0 0 -0.00662245">
+                    <inertial pos="0.0383189 -0.000510921 -0.0158668" quat="0.154673 0.637313 0.100585 0.748191" mass="0.10211" diaginertia="0.00032431 0.000264216 9.18208e-05" />
+                    <joint name="rohand_mf_proximal_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_mf_proximal_link" />
+                    <body name="rohand_mf_distal_link" pos="-0.038293 0 -0.014673">
+                      <inertial pos="-0.0142677 9.50657e-05 -0.0186056" quat="0.942408 4.79347e-06 0.334466 -1.70123e-06" mass="0.00416341" diaginertia="5.8231e-07 5.74328e-07 6.77385e-08" />
+                      <joint name="rohand_mf_distal_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_mf_distal_link" />
+                    </body>
+                  </body>
+                  <body name="rohand_mf_connecting_link" pos="-0.12339 0.010769 0.011188" quat="0.999978 1.05273e-05 -6.97179e-08 -0.00662245">
+                    <inertial pos="-0.0133612 9.99471e-05 -0.0138042" quat="0.646138 0.287238 0.287238 0.646138" mass="0.000270251" diaginertia="4.81455e-08 4.76861e-08 5.04447e-10" />
+                    <joint name="rohand_mf_connecting_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_mf_connecting_link" />
+                  </body>
+                  <body name="rohand_rf_slider_link" pos="-0.093265 -0.0081344 -0.0025598" quat="0.9996 1.34492e-06 -4.7522e-05 0.0282897">
+                    <inertial pos="-0.0031457 2.69889e-07 2.10339e-08" quat="0 0.707107 0 0.707107" mass="0.000191989" diaginertia="1.93254e-09 1.58025e-09 1.26509e-09" />
+                    <joint name="rohand_rf_slider_link" pos="0 0 0" axis="1 0 0" type="slide" range="-0.003 0.016" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_rf_slider_link" />
+                    <body name="rohand_rf_slider_abpart_link" pos="-0.0071723 0 0" quat="1 -3.15015e-05 4.9478e-05 1.55863e-09">
+                      <inertial pos="-0.0102283 6.32805e-08 -0.0018456" quat="0 0.617742 0 0.786381" mass="0.000457379" diaginertia="1.713e-08 1.65926e-08 1.74112e-09" />
+                      <joint name="rohand_rf_slider_abpart_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_rf_slider_abpart_link" />
+                    </body>
+                  </body>
+                  <body name="rohand_rf_proximal_link" pos="-0.11324 -0.0091941 0.0060382" quat="0.9996 0 0 0.0282972">
+                    <inertial pos="-0.0157473 -9.85177e-05 -0.00809297" quat="6.79741e-05 0.594627 3.87499e-05 0.804002" mass="0.00155058" diaginertia="1.69652e-07 1.54825e-07 6.13748e-08" />
+                    <joint name="rohand_rf_proximal_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_rf_proximal_link" />
+                    <body name="rohand_rf_distal_link" pos="-0.033643 0 -0.012583" quat="1 1.4655e-05 -7.39931e-10 -5.049e-05">
+                      <inertial pos="-0.0127271 -9.38053e-05 -0.0196846" quat="0.955067 3.19757e-05 0.296389 0.000120019" mass="0.00416255" diaginertia="5.82042e-07 5.74059e-07 6.77466e-08" />
+                      <joint name="rohand_rf_distal_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_rf_distal_link" />
+                    </body>
+                  </body>
+                  <body name="rohand_rf_connecting_link" pos="-0.12065 -0.0095872 0.010438" quat="0.9996 1.05063e-05 2.97418e-07 0.0282972">
+                    <inertial pos="-0.0110233 -9.99168e-05 -0.0127323" quat="0.653578 0.269881 0.269881 0.653578" mass="0.000247118" diaginertia="3.38395e-08 3.33941e-08 4.86664e-10" />
+                    <joint name="rohand_rf_connecting_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_rf_connecting_link" />
+                  </body>
+                  <body name="rohand_lf_slider_link" pos="-0.089577 -0.026231 -0.0050791" quat="0.998251 2.44475e-06 -4.12797e-05 0.0591205">
+                    <inertial pos="-0.0031457 2.68667e-07 4.40145e-08" quat="-0.0309498 0.706429 -0.0309498 0.706429" mass="0.000191989" diaginertia="1.93254e-09 1.58025e-09 1.26509e-09" />
+                    <joint name="rohand_lf_slider_link" pos="0 0 0" axis="1 0 0" type="slide" range="-0.003 0.016" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_lf_slider_link" />
+                    <body name="rohand_lf_slider_abpart_link" pos="-0.0071723 0 0" quat="0.999035 0.0436263 -0.00513365 -0.000224196">
+                      <inertial pos="-0.0102366 6.32819e-08 -0.00179909" quat="0 0.619528 0 0.784975" mass="0.000457379" diaginertia="1.713e-08 1.65926e-08 1.74112e-09" />
+                      <joint name="rohand_lf_slider_abpart_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_lf_slider_abpart_link" />
+                    </body>
+                  </body>
+                  <body name="rohand_lf_proximal_link" pos="-0.10947 -0.02946 0.0034771" quat="0.997298 0.0438248 -0.00258872 0.0589093">
+                    <inertial pos="-0.014089 0.000100219 -0.0073978" quat="0 0.590053 0 0.807364" mass="0.00136673" diaginertia="1.27487e-07 1.12813e-07 5.56915e-08" />
+                    <joint name="rohand_lf_proximal_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_lf_proximal_link" />
+                    <body name="rohand_lf_distal_link" pos="-0.029737 5.0315e-05 -0.011632" quat="1 1.05275e-05 0 0">
+                      <inertial pos="-0.0083485 -0.000122866 -0.0140829" quat="0.960078 -0.00362187 0.279631 0.00657346" mass="0.00263003" diaginertia="1.59093e-07 1.53222e-07 3.74446e-08" />
+                      <joint name="rohand_lf_distal_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_lf_distal_link" />
+                    </body>
+                  </body>
+                  <body name="rohand_lf_connecting_link" pos="-0.11679 -0.030717 0.0078597" quat="0.997297 0.0438354 -0.00258959 0.0589093">
+                    <inertial pos="-0.00897984 9.99101e-05 -0.0119937" quat="0.663071 0.245637 0.245637 0.663071" mass="0.000221228" diaginertia="2.51147e-08 2.47188e-08 4.3279e-10" />
+                    <joint name="rohand_lf_connecting_link" pos="0 0 0" axis="0 1 0" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_lf_connecting_link" />
+                  </body>
+                  <body name="rohand_th_root_link" pos="-0.04608 0.020016 -0.0232" quat="0.994021 -0.000721768 -0.108986 -0.006583">
+                    <inertial pos="0.00191344 0.00533361 -0.00206873" quat="0.710156 0.619804 0.190258 0.274453" mass="0.00219895" diaginertia="2.21369e-07 1.74607e-07 9.72681e-08" />
+                    <joint name="rohand_th_root_link" pos="0 0 0" axis="-1 0 0" range="-0.035 1.605" damping="1.0" frictionloss="0.1" />
+                    <geom type="mesh" rgba="1 1 1 1" mesh="rohand_th_root_link" />
+                    <body name="rohand_th_proximal_link" pos="-0.0067545 0.02098 -0.0027" quat="0.999979 0 0 0.00646545">
+                      <inertial pos="-0.0180334 0.00795835 -0.000164754" quat="0.107106 0.698915 -0.107327 0.698947" mass="0.00666243" diaginertia="2.21298e-06 2.04055e-06 3.25226e-07" />
+                      <joint name="rohand_th_proximal_link" pos="0 0 0" axis="0 0 -1" damping="1.0" frictionloss="0.1" />
+                      <geom type="mesh" rgba="1 1 1 1" mesh="rohand_th_proximal_link" />
+                      <body name="rohand_th_slider_link" pos="-0.010802 0.0076387 -0.00016532" quat="0.000366873 0.229823 0.973231 0.0015536">
+                        <inertial pos="0.00651851 -0.00154139 -4.96071e-06" quat="0.492343 0.493926 0.505958 0.507584" mass="0.00106239" diaginertia="8.00891e-08 6.20053e-08 2.65031e-08" />
+                        <joint name="rohand_th_slider_link" pos="0 0 0" axis="1 0 0" type="slide" range="-0.003 0.008" damping="1.0" frictionloss="0.1" />
+                        <geom type="mesh" rgba="1 1 1 1" mesh="rohand_th_slider_link" />
+                        <body name="rohand_th_connecting_link" pos="0.0303 0.00016046 -0.000143" quat="-0.000365894 0.229824 0.973231 0.00157251">
+                          <inertial pos="-0.00451244 0.00144326 -6.77059e-05" quat="0.556694 0.556694 0.435995 0.435995" mass="0.000339219" diaginertia="5.66201e-09 5.08101e-09 2.17295e-09" />
+                          <joint name="rohand_th_connecting_link" pos="0 0 0" axis="0 0 -1" damping="1.0" frictionloss="0.1" />
+                          <geom type="mesh" rgba="1 1 1 1" mesh="rohand_th_connecting_link" />
+                        </body>
+                      </body>
+                      <body name="rohand_th_distal_link" pos="-0.050881 0.013011 -0.0020153">
+                        <inertial pos="-0.00825362 0.00781058 0.00189926" quat="0.611565 0.611505 0.354992 0.355009" mass="0.00503403" diaginertia="3.0114e-07 2.35219e-07 1.66173e-07" />
+                        <joint name="rohand_th_distal_link" pos="0 0 0" axis="0 0 -1" damping="1.0" frictionloss="0.1" />
+                        <geom type="mesh" rgba="1 1 1 1" mesh="rohand_th_distal_link" />
+                      </body>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <motor name="elfin_joint1_motor" joint="elfin_joint1" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint2_motor" joint="elfin_joint2" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint3_motor" joint="elfin_joint3" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint4_motor" joint="elfin_joint4" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint5_motor" joint="elfin_joint5" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="elfin_joint6_motor" joint="elfin_joint6" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_if_slider_link_motor" joint="rohand_if_slider_link" gear="1" ctrlrange="-1 1" />
+    <motor name="rohand_if_slider_abpart_link_motor" joint="rohand_if_slider_abpart_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_if_proximal_link_motor" joint="rohand_if_proximal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_if_distal_link_motor" joint="rohand_if_distal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_if_connecting_link_motor" joint="rohand_if_connecting_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_mf_slider_link_motor" joint="rohand_mf_slider_link" gear="1" ctrlrange="-1 1" />
+    <motor name="rohand_mf_slider_abpart_link_motor" joint="rohand_mf_slider_abpart_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_mf_proximal_link_motor" joint="rohand_mf_proximal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_mf_distal_link_motor" joint="rohand_mf_distal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_mf_connecting_link_motor" joint="rohand_mf_connecting_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_rf_slider_link_motor" joint="rohand_rf_slider_link" gear="1" ctrlrange="-1 1" />
+    <motor name="rohand_rf_slider_abpart_link_motor" joint="rohand_rf_slider_abpart_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_rf_proximal_link_motor" joint="rohand_rf_proximal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_rf_distal_link_motor" joint="rohand_rf_distal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_rf_connecting_link_motor" joint="rohand_rf_connecting_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_lf_slider_link_motor" joint="rohand_lf_slider_link" gear="1" ctrlrange="-1 1" />
+    <motor name="rohand_lf_slider_abpart_link_motor" joint="rohand_lf_slider_abpart_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_lf_proximal_link_motor" joint="rohand_lf_proximal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_lf_distal_link_motor" joint="rohand_lf_distal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_lf_connecting_link_motor" joint="rohand_lf_connecting_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_th_root_link_motor" joint="rohand_th_root_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_th_proximal_link_motor" joint="rohand_th_proximal_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_th_slider_link_motor" joint="rohand_th_slider_link" gear="1" ctrlrange="-1 1" />
+    <motor name="rohand_th_connecting_link_motor" joint="rohand_th_connecting_link" gear="1" ctrlrange="-3.14 3.14" />
+    <motor name="rohand_th_distal_link_motor" joint="rohand_th_distal_link" gear="1" ctrlrange="-3.14 3.14" />
+  </actuator>
+  <keyframe>
+    <key name="home" qpos="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0" />
+  </keyframe>
+</mujoco>

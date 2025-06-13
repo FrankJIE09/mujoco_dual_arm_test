@@ -10,6 +10,93 @@ import os
 import sys
 import shutil
 import re
+import xml.etree.ElementTree as ET
+
+
+def add_actor_to_mjcf(mjcf_path, robot_name):
+    """
+    在生成的MJCF文件中添加actor元素
+    """
+    try:
+        # 解析MJCF文件
+        tree = ET.parse(mjcf_path)
+        root = tree.getroot()
+        
+        # 查找worldbody元素
+        worldbody = root.find('worldbody')
+        if worldbody is None:
+            print("❌ 未找到worldbody元素")
+            return False
+            
+        # 查找主要的robot body (通常是第一个body元素)
+        robot_body = worldbody.find('body')
+        if robot_body is None:
+            print("❌ 未找到robot body元素")
+            return False
+            
+        robot_body_name = robot_body.get('name', robot_name)
+        
+        # 创建actuator section如果不存在
+        actuator_section = root.find('actuator')
+        if actuator_section is None:
+            actuator_section = ET.SubElement(root, 'actuator')
+        
+        # 收集所有关节
+        joints = []
+        for joint in root.iter('joint'):
+            joint_name = joint.get('name')
+            joint_type = joint.get('type', 'hinge')
+            if joint_name and joint_type in ['hinge', 'slide']:
+                joints.append((joint_name, joint_type))
+        
+        # 为每个关节创建actuator
+        for joint_name, joint_type in joints:
+            actuator = ET.SubElement(actuator_section, 'general')
+            actuator.set('name', f'{joint_name}_actuator')
+            actuator.set('joint', joint_name)
+            actuator.set('gainprm', '1')
+            if joint_type == 'slide':
+                actuator.set('ctrlrange', '-1 1')
+            else:
+                actuator.set('ctrlrange', '-3.14 3.14')
+        
+        # 创建keyframe section用于初始姿态
+        keyframe_section = root.find('keyframe')
+        if keyframe_section is None:
+            keyframe_section = ET.SubElement(root, 'keyframe')
+            
+        # 添加default keyframe
+        default_key = ET.SubElement(keyframe_section, 'key')
+        default_key.set('name', 'home')
+        default_key.set('qpos', ' '.join(['0'] * len(joints)))
+        
+        # 美化XML格式
+        def indent(elem, level=0):
+            i = "\n" + level*"  "
+            if len(elem):
+                if not elem.text or not elem.text.strip():
+                    elem.text = i + "  "
+                if not elem.tail or not elem.tail.strip():
+                    elem.tail = i
+                for child in elem:
+                    indent(child, level+1)
+                if not child.tail or not child.tail.strip():
+                    child.tail = i
+            else:
+                if level and (not elem.tail or not elem.tail.strip()):
+                    elem.tail = i
+        
+        indent(root)
+        
+        # 保存修改后的MJCF
+        tree.write(mjcf_path, encoding='utf-8', xml_declaration=True)
+        print(f"✅ 已添加 {len(joints)} 个actuator到MJCF文件")
+        
+        return True
+        
+    except Exception as e:
+        print(f"❌ 添加actor失败: {e}")
+        return False
 
 
 def convert_robot(robot_type, robot_name, project_root):
@@ -32,6 +119,13 @@ def convert_robot(robot_type, robot_name, project_root):
         urdf_path = os.path.join(project_root, 'ur_description', 'urdf', f'{robot_name}.urdf')
         # UR机器人的mesh文件结构比较特殊
         mesh_source_dir = os.path.join(project_root, 'ur_description', 'meshes')
+    elif robot_type == 'rohand':
+        urdf_path = os.path.join(project_root, 'rohand_urdf_ros2', 'urdf', f'{robot_name}.urdf')
+        # rohand根据左右手选择不同的mesh目录
+        if 'left' in robot_name:
+            mesh_source_dir = os.path.join(project_root, 'rohand_urdf_ros2', 'meshes_l')
+        else:  # right hand
+            mesh_source_dir = os.path.join(project_root, 'rohand_urdf_ros2', 'meshes_r')
     else:
         print(f"❌ 不支持的机器人类型: {robot_type}")
         return False
@@ -90,7 +184,13 @@ def convert_robot(robot_type, robot_name, project_root):
         mujoco.mj_saveLastXML(output_mjcf_name, model)
         print(f"✅ MJCF文件已生成: {output_mjcf_name}")
 
-        # 6. 将结果复制回主输出目录
+        # 6. 添加actor元素到MJCF文件
+        if add_actor_to_mjcf(output_mjcf_name, robot_name):
+            print(f"✅ 已为 {robot_name} 添加actor元素")
+        else:
+            print(f"⚠️  添加actor元素失败，但MJCF文件仍然有效")
+
+        # 7. 将结果复制回主输出目录
         # main_output_dir = os.path.join(project_root, "mjcf_models")
         # os.makedirs(main_output_dir, exist_ok=True)
         # final_mjcf_path = os.path.join(main_output_dir, output_mjcf_name)
@@ -108,8 +208,8 @@ def convert_robot(robot_type, robot_name, project_root):
         print("----------------------------")
         return False
     finally:
-        # 7. 返回原始目录并清理临时文件
-        pass
+        # 8. 返回原始目录并清理临时文件
+        os.chdir(original_cwd)
 
 
 def main():
@@ -132,9 +232,15 @@ def main():
         for f in os.listdir(ur_urdf_dir):
             if f.endswith('.urdf'):
                 robots_to_convert.append(('ur', f.replace('.urdf', '')))
+    # RoHand
+    rohand_urdf_dir = "rohand_urdf_ros2/urdf"
+    if os.path.isdir(rohand_urdf_dir):
+        for f in os.listdir(rohand_urdf_dir):
+            if f.endswith('.urdf'):
+                robots_to_convert.append(('rohand', f.replace('.urdf', '')))
 
     if not robots_to_convert:
-        print("❌ 未找到任何URDF文件，请检查elfin_description和universal_description目录。")
+        print("❌ 未找到任何URDF文件，请检查elfin_description、ur_description和rohand_urdf_ros2目录。")
         return
 
     success_count = 0

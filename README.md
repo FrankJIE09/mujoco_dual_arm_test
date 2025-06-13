@@ -2,7 +2,7 @@
 
 这是一个用于将URDF（Unified Robot Description Format）文件批量转换为MJCF（MuJoCo Physics Engine XML format）的工具。
 该项目旨在解决在转换过程中因mesh文件路径问题导致的常见失败，提供一个稳定、可靠的转换流程。
-目前主要支持Elfin和UR系列的机器人，但可以轻松扩展以支持其他机器人。
+目前主要支持Elfin、UR系列的机器人臂和RoHand机器人手，但可以轻松扩展以支持其他机器人。
 
 ## ✨ 主要特性
 
@@ -19,6 +19,7 @@
 ├── mjcf_models/            # 存放转换后输出的MJCF模型
 ├── elfin_description/      # 存放Elfin系列机器人的URDF和mesh文件
 ├── ur_description/         # 存放UR系列机器人的URDF和mesh文件
+├── rohand_urdf_ros2/       # 存放RoHand机器人手的URDF和mesh文件
 ├── urdf_converter.py       # 核心转换脚本
 ├── mjcf_viewer.py          # MJCF模型查看器
 ├── requirements.txt        # Python依赖
@@ -45,6 +46,7 @@
 
 - 对于Elfin机器人，请放入 `elfin_description` 目录。
 - 对于UR机器人，请放入 `ur_description` 目录。
+- 对于RoHand机器人手，请放入 `rohand_urdf_ros2` 目录。
 
 > **注意**: 如果你的模型是`.xacro`格式，你需要先将其转换为`.urdf`。你可以参考 `xacro_to_urdf.sh` 脚本中的示例来完成这个步骤。通常使用`xacro`命令：
 > ```bash
@@ -59,8 +61,8 @@
 python urdf_converter.py
 ```
 
-脚本会自动扫描 `elfin_description/urdf` 和 `ur_description/urdf` 目录下的所有`.urdf`文件，并执行转换。
-转换成功后，结果将保存在 `mjcf_models/` 目录下。每个模型都会有一个独立的子目录，例如 `mjcf_models/elfin5/`。
+脚本会自动扫描 `elfin_description/urdf`、`ur_description/urdf` 和 `rohand_urdf_ros2/urdf` 目录下的所有`.urdf`文件，并执行转换。
+转换成功后，结果将保存在 `mjcf_models/` 目录下。每个模型都会有一个独立的子目录，例如 `mjcf_models/elfin5/` 或 `mjcf_models/rohand_left/`。
 
 ### 3. 查看模型
 

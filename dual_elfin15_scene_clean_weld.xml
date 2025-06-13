@@ -70,22 +70,12 @@
                                     <inertial pos="6.22099e-05 -0.00431405 0.139458" quat="0.506404 0.493377 -0.485637 0.514093" mass="0.352384" diaginertia="0.000345682 0.000280644 0.000240015"/>
                                     <joint name="left_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
                                     <geom type="mesh" rgba="0.2 0.8 0.8 1" mesh="elfin_left_link6"/>
-
-                                    <!-- 虚拟连杆直接连接在第6个连杆上 -->
-                                    <body name="virtual_rod" pos="0 0 0.2" euler="0 -1.57 0">
-                                        <geom name="virtual_rod_geom" type="capsule"
-                                              size="0.008" fromto="0 0 0 0.5 0 0"
-                                              rgba="1 1 0 0.8"/>
-                                        <!-- 虚拟连杆末端标记 -->
-                                        <body name="virtual_rod_end" pos="0.5 0 0">
-                                            <geom name="virtual_rod_end_marker" type="sphere"
-                                                  size="0.015" rgba="0 1 1 1"/>
-                                        </body>
-                                    </body>
-
-                                    <!-- 左侧末端执行器标记 -->
-                                    <body name="left_end_effector" pos="0 0 0.05">
+                                    
+                                    <!-- 左侧末端执行器 -->
+                                    <body name="left_end_effector" pos="0 0 0.2">
                                         <geom name="left_end_marker" type="sphere" size="0.02" rgba="1 0 0 1"/>
+                                        <!-- 左末端传感器位置 -->
+                                        <site name="left_end_site" pos="0 0 0" size="0.01"/>
                                     </body>
                                 </body>
                             </body>
@@ -94,7 +84,7 @@
                 </body>
             </body>
         </body>
-
+        
         <!-- 右侧机械臂 (绿色系) -->
         <body name="right_robot_base" pos="0 0 1.0" euler="1.57 -1.57 0">
             <geom type="mesh" rgba="0.2 0.8 0.2 1" mesh="elfin_right_base"/>
@@ -122,9 +112,12 @@
                                     <inertial pos="6.22099e-05 -0.00431405 0.139458" quat="0.506404 0.493377 -0.485637 0.514093" mass="0.352384" diaginertia="0.000345682 0.000280644 0.000240015"/>
                                     <joint name="right_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
                                     <geom type="mesh" rgba="0.8 0.2 0.8 1" mesh="elfin_right_link6"/>
-                                    <!-- 右侧末端执行器标记 -->
-                                    <body name="right_end_effector" pos="0 0 0.05">
+                                    
+                                    <!-- 右侧末端执行器 -->
+                                    <body name="right_end_effector" pos="0 0 0.2">
                                         <geom name="right_end_marker" type="sphere" size="0.02" rgba="0 1 0 1"/>
+                                        <!-- 右末端传感器位置 -->
+                                        <site name="right_end_site" pos="0 0 0" size="0.01"/>
                                     </body>
                                 </body>
                             </body>
@@ -133,9 +126,9 @@
                 </body>
             </body>
         </body>
-
+        
     </worldbody>
-
+    
     <!-- 执行器定义 -->
 
     <!-- 执行器定义 -->
@@ -156,6 +149,26 @@
         <general name="right_motor5" joint="right_joint5" gainprm="1" ctrlrange="-3.14 3.14"/>
         <general name="right_motor6" joint="right_joint6" gainprm="1" ctrlrange="-3.14 3.14"/>
     </actuator>
+    
+    <!-- 等式约束 - 双臂末端刚性连接 -->
+    <equality>
+        <!-- 直接将两个末端执行器刚性连接，模拟抓取同一物体 -->
+        <weld name="dual_arm_rigid_grasp" 
+              body1="left_end_effector" 
+              body2="right_end_effector"
+              anchor="0 0 0.2"
+              relpose="0 0 0 0 1 0 0"/>
+
+    </equality>
+    
+    <!-- 传感器 - 监测双臂协作力 -->
+    <sensor>
+        <force name="left_end_force" site="left_end_site"/>
+        <torque name="left_end_torque" site="left_end_site"/>
+        <force name="right_end_force" site="right_end_site"/>
+        <torque name="right_end_torque" site="right_end_site"/>
+    </sensor>
+    
     <!-- 关键帧定义 -->
     <keyframe>
         <key name="home" qpos=" 0.14403416 -0.62792113  1.70052709  3.14 -0.81314359  0.14512927

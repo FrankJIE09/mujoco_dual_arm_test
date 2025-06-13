@@ -31,7 +31,7 @@ def rpy_to_quaternion(roll, pitch, yaw):
 # --- 使用示例 ---
 if __name__ == '__main__':
     # 定义 RPY 角度 (单位：度)
-    roll_deg =90
+    roll_deg =180
     pitch_deg = 0
     yaw_deg = 0
 

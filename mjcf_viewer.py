@@ -168,7 +168,8 @@ class MJCFViewer:
 
             while self.running and viewer.is_running():
                 if self.data.qvel.__len__() == self.data.ctrl.shape[0]:
-                    self.data.qvel = 10 * (self.data.ctrl-self.data.qpos )
+                    # self.data.qvel[:6] = 10 * (self.data.ctrl[:6]-self.data.qpos[:6])
+                    self.data.qvel = 10 * (self.data.ctrl-self.data.qpos)
                 # 更新仿真
                 mujoco.mj_step(self.model, self.data)
                 # 同步查看器

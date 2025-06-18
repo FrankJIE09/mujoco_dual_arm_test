@@ -177,6 +177,96 @@ def demo_joint_limits(kin):
         print(f"  配置 {i + 1}: {within_limits} - {random_angles}")
 
 
+def demo_visualization(kin):
+    """演示MuJoCo可视化功能"""
+    print("\n" + "=" * 50)
+    print("🎥 MuJoCo可视化演示")
+    print("=" * 50)
+
+    # 定义一些有趣的关节配置
+    demo_configs = [
+        {
+            "name": "零位姿",
+            "angles": np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
+            "description": "机器人的初始位置"
+        },
+        {
+            "name": "举臂姿态",
+            "angles": np.array([0.0, -1.0, 1.5, 0.0, 0.5, 0.0]),
+            "description": "手臂向上举起"
+        },
+        {
+            "name": "侧伸姿态",
+            "angles": np.array([1.57, 0.0, 0.0, 0.0, 0.0, 0.0]),
+            "description": "手臂向侧面伸展"
+        },
+        {
+            "name": "复杂姿态",
+            "angles": np.array([0.5, -0.5, 1.0, -1.0, 0.5, -0.5]),
+            "description": "复杂的关节配置"
+        }
+    ]
+
+    for i, config in enumerate(demo_configs):
+        print(f"\n{i + 1}. {config['name']}: {config['description']}")
+        print(f"   关节角度: {config['angles']}")
+
+        # 计算末端位置
+        try:
+            pos, quat = kin.forward_kinematics(config['angles'])
+            print(f"   末端位置: [{pos[0]:.3f}, {pos[1]:.3f}, {pos[2]:.3f}]")
+
+            show_pose = input(f"   是否显示该姿态? (y/n): ").lower().strip()
+            if show_pose == 'y':
+                print(f"🎬 显示姿态: {config['name']}")
+                print("关闭窗口或等待10秒自动关闭")
+                kin.visualize(config['angles'])
+
+        except Exception as e:
+            print(f"   ❌ 计算或显示失败: {e}")
+
+
+def demo_smooth_motion(kin):
+    """演示平滑运动"""
+    print("\n" + "=" * 50)
+    print("🌊 平滑运动演示")
+    print("=" * 50)
+
+    print("将创建一个平滑的关节运动序列...")
+
+    # 创建一个简单的正弦波运动
+    num_steps = 100
+    t = np.linspace(0, 4 * np.pi, num_steps)
+
+    joint_trajectories = []
+    for step in range(num_steps):
+        # 让第一个关节做正弦运动，其他关节做不同频率的运动
+        angles = np.array([
+            0.8 * np.sin(t[step]),  # joint 1
+            0.5 * np.sin(t[step] * 0.5),  # joint 2
+            0.3 * np.sin(t[step] * 0.8),  # joint 3
+            0.4 * np.sin(t[step] * 1.2),  # joint 4
+            0.6 * np.sin(t[step] * 0.7),  # joint 5
+            0.2 * np.sin(t[step] * 1.5)  # joint 6
+        ])
+        joint_trajectories.append(angles)
+
+    joint_trajectories = np.array(joint_trajectories)
+
+    print(f"生成了 {num_steps} 个运动步骤")
+    print("这将展示各关节的协调运动")
+
+    show_motion = input("是否播放平滑运动? (y/n): ").lower().strip()
+    if show_motion == 'y':
+        print("🎬 开始播放平滑运动...")
+        print("按 ESC 或关闭窗口可提前退出")
+        try:
+            kin.animate_trajectory(joint_trajectories, dt=0.05)
+            print("✅ 平滑运动演示完成")
+        except Exception as e:
+            print(f"❌ 运动播放失败: {e}")
+
+
 def interactive_demo():
     """交互式演示菜单"""
     print("🤖 Elfin15 高级运动学功能演示")
@@ -197,12 +287,14 @@ def interactive_demo():
         print("2. 工作空间分析")
         print("3. 轨迹规划演示")
         print("4. 关节限制分析")
-        print("5. 执行所有演示")
+        print("5. MuJoCo可视化演示")
+        print("6. 平滑运动演示")
+        print("7. 执行所有演示")
         print("0. 退出")
         print("=" * 30)
 
         try:
-            choice = input("请输入选择 (0-5): ").strip()
+            choice = input("请输入选择 (0-7): ").strip()
 
             if choice == '0':
                 print("👋 再见!")
@@ -218,15 +310,34 @@ def interactive_demo():
                     show_anim = input("\n是否显示轨迹动画? (y/n): ").lower().strip()
                     if show_anim == 'y':
                         for traj in successful_trajs:
-                            print(f"播放轨迹: {traj['name']}")
-                            kin.animate_trajectory(traj['joint_trajectory'], dt=0.1)
+                            print(f"🎬 播放轨迹: {traj['name']}")
+                            print(f"🕒 轨迹点数: {len(traj['joint_trajectory'])}")
+                            print("按 ESC 或关闭窗口可提前退出动画")
+                            try:
+                                kin.animate_trajectory(traj['joint_trajectory'], dt=0.05)
+                                print(f"✅ 轨迹 '{traj['name']}' 播放完成")
+                            except Exception as e:
+                                print(f"❌ 轨迹播放失败: {e}")
+
+                            # 询问是否继续播放下一个轨迹
+                            if len(successful_trajs) > 1:
+                                continue_play = input("继续播放下一个轨迹? (y/n): ").lower().strip()
+                                if continue_play != 'y':
+                                    break
             elif choice == '4':
                 demo_joint_limits(kin)
             elif choice == '5':
+                demo_visualization(kin)
+            elif choice == '6':
+                demo_smooth_motion(kin)
+            elif choice == '7':
+                print("🚀 开始执行所有演示...")
                 demo_jacobian_analysis(kin)
                 demo_workspace_analysis(kin)
                 successful_trajs = demo_trajectory_planning(kin)
                 demo_joint_limits(kin)
+                demo_visualization(kin)
+                demo_smooth_motion(kin)
                 print("\n🎉 所有演示完成!")
             else:
                 print("❌ 无效选择，请重新输入!")

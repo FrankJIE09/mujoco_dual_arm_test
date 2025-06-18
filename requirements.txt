@@ -4,5 +4,8 @@
 # Python Version: Python 3.10.18
 # -----------------------------
 
-mujoco==3.3.2
-numpy==2.3.0
+mujoco
+numpy
+ikpy
+scipy
+mediapy

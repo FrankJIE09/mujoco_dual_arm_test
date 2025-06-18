@@ -163,27 +163,22 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
     left_chain, right_chain, T_W_B1, T_W_B2 = chains_and_bases
 
     # --- 定义闭环约束 ---
-    # 假设虚拟物体是一个20cm宽的杆，两个夹爪各抓住一端。
-    # M是杆的中点，所以每个夹爪距离M为10cm。
-
-    # T_E1_M: 从左臂末端(E1)坐标系到中点(M)坐标系的变换。
-    # 假设E1的Z轴朝向M，所以M在E1的Z轴正方向0.1m处。
+    # 假设虚拟物体中点M位于左臂末端执行器(E1)的Z轴正方向0.1m处。
+    # 这是 T_E1_M, 从E1坐标系到M坐标系的变换。
     T_E1_M = np.eye(4)
     T_E1_M[2, 3] = 0.1
 
-    # T_E2_M: 从右臂末端(E2)坐标系到中点(M)坐标系的变换。
-    # 为了让E2与E1相对，E2需要绕其Y轴旋转180度。
-    # 旋转后，M也位于E2的(新)Z轴正方向0.1m处。
-    # T_M_E2 = translation(0,0,0.1) @ rotation_y(180)
-    # T_E2_M = inv(T_M_E2) = rotation_y(180) @ translation(0,0,-0.1)
+    # 假设M也位于右臂末端执行器(E2)的Z轴正方向0.1m处。
+    # 同时，为了让两个夹爪"相对"，我们将E2坐标系绕其X轴旋转180度。
     T_E2_M = np.eye(4)
-    T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
-    T_E2_M[:3, 3] = np.array([0, 0, -0.1])
-
+    T_E2_M[2, 3] = 0.1 
+    T_E2_M[:3, :3] = Rotation.from_euler('x', 180, degrees=True).as_matrix()
 
     # T_E1_E2 是从左臂末端到右臂末端的恒定变换，这是核心的闭环约束。
-    # T_E1_E2 = T_E1_M @ inv(T_E2_M)
-    T_E1_E2 = T_E1_M @ np.linalg.inv(T_E2_M)
+    # T_E1_E2 = T_E1_M @ T_M_E2 = T_E1_M @ inv(T_E2_M)
+    T_M_E2 = np.linalg.inv(T_E2_M)
+    T_E1_E2 = T_E1_M @ T_M_E2
+
 
     def objective(q):
         """
@@ -323,9 +318,7 @@ if __name__ == '__main__':
         T_W_E1_sol = T_W_B1 @ T_B1_E1_sol
         T_W_E2_sol = T_W_B2 @ T_B2_E2_sol
 
-        # 注意：这里的 T_E1_M 必须与上面 solve_dual_arm_ik 中定义的完全一致
-        T_E1_M = np.eye(4)
-        T_E1_M[2, 3] = 0.1
+        T_E1_M = np.eye(4); T_E1_M[2, 3] = 3.3
         T_W_M_sol = T_W_E1_sol @ T_E1_M
 
         print("\nResulting Pose of object midpoint from solution:")
@@ -336,23 +329,20 @@ if __name__ == '__main__':
         print(f"\nPosition difference to target: {pos_diff:.6f} meters")
 
         # 验证闭环约束是否仍然满足
-        # 注意：这里的 T_E1_M 和 T_E2_M 的定义也必须与上面 solve_dual_arm_ik 中定义的完全一致
-        T_E1_M = np.eye(4)
-        T_E1_M[2, 3] = 0.1
-        T_E2_M = np.eye(4)
-        T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
-        T_E2_M[:3, 3] = np.array([0, 0, -0.1])
+        T_E2_M = np.eye(4); T_E2_M[2, 3] = 0.3
+        # T_E2_M[:3, :3] = Rotation.from_euler('x', 180, degrees=True).as_matrix()
         T_E1_E2_target = T_E1_M @ np.linalg.inv(T_E2_M)
         T_E1_E2_sol = np.linalg.inv(T_W_E1_sol) @ T_W_E2_sol
         
         constraint_pos_diff = np.linalg.norm(T_E1_E2_sol[:3,3] - T_E1_E2_target[:3,3])
         print(f"Closed-loop constraint position difference: {constraint_pos_diff:.6f} meters")
 
-        # --- 5. Visualization with mediapy ---
-        print("\nGenerating visualization of the result using mediapy...")
+        # --- 5. Visualization with MuJoCo ---
+        print("\nAttempting to display the result directly in MuJoCo Viewer...")
         try:
             import mujoco
-            import mediapy as media
+            import mujoco.viewer
+            import time
 
             model = mujoco.MjModel.from_xml_path(xml_file)
             data = mujoco.MjData(model)
@@ -360,25 +350,35 @@ if __name__ == '__main__':
             # 将计算出的关节角度设置为模型的姿态
             data.qpos[:12] = solution_q
 
-            # 更新所有相关的仿真数据 (例如几何体的位置)
-            mujoco.mj_forward(model, data)
-            
-            # 创建渲染器并生成图像
-            renderer = mujoco.Renderer(model, 480, 640)
-            renderer.update_scene(data)
-            img = renderer.render()
-            
-            # 保存并显示图像
-            image_path = 'dual_arm_result.png'
-            media.write_image(image_path, img)
-
-            print(f"\nResult image saved to '{image_path}'.")
-            print("This image shows the final pose calculated by the optimizer.")
-            print("Note: Your development environment may not support displaying images directly.")
+            # 使用官方推荐的 'with' 语句启动查看器
+            # 这会自动处理查看器的生命周期
+            print("Launching viewer...")
+            with mujoco.viewer.launch_passive(model, data) as viewer:
+                print("Viewer launched. It will close automatically when the script ends.")
+                # 让查看器显示5秒钟
+                time.sleep(5)
 
 
         except ImportError:
-            print("\nCould not import 'mediapy'.")
-            print("Please install it to generate the result image: pip install mediapy")
+            print("\nCould not import 'mujoco'.")
+            print("Please install it to visualize the result: pip install mujoco")
         except Exception as e:
-            print(f"\nAn error occurred during visualization: {e}") 
+            print(f"\nAn error occurred during visualization: {e}")
+            print("Falling back to saving the result to an XML file.")
+            # 后备方案：如果直接可视化失败，则保存到XML
+            try:
+                tree = ET.parse(xml_file)
+                root = tree.getroot()
+                home_key = root.find(".//key[@name='home']")
+                if home_key is not None:
+                    solution_q_str = " ".join(map(str, solution_q))
+                    home_key.set('qpos', solution_q_str)
+                    home_key.set('ctrl', solution_q_str)
+                
+                result_xml_file = 'dual_elfin15_scene_result.xml'
+                tree.write(result_xml_file, encoding='utf-8', xml_declaration=True)
+                
+                print(f"\nResult saved to '{result_xml_file}'.")
+                print(f"You can view it by running: simulate {result_xml_file}")
+            except Exception as xml_e:
+                print(f"An error occurred during XML fallback as well: {xml_e}") 

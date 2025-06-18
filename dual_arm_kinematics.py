@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 双臂机器人运动学求解器
 
@@ -143,13 +142,7 @@ def get_transformation(body_element):
         # 假设欧拉角顺序为 'xyz'
         # 旋转矩阵: R = Rz(ψ) @ Ry(θ) @ Rx(φ)
         e = np.fromstring(euler, sep=' ')
-        R_x = Rotation.from_euler('x', e[0]).as_matrix()
-        R_y = Rotation.from_euler('y', e[1]).as_matrix()
-        R_z = Rotation.from_euler('z',e[2]).as_matrix()
-        rot_matrix = R_x @ R_y @ R_z
-
-        # rot_matrix =
-        # rot_matrix = Rotation.from_euler('xyz', e).as_matrix()
+        rot_matrix = Rotation.from_euler('XYZ', e).as_matrix()
 
     # 构建4x4变换矩阵
     # 数学公式: T = [R    p]
@@ -277,42 +270,10 @@ def get_kinematics(xml_file_path):
     """
     left_chain, left_base_transform = create_chain_from_mjcf(xml_file_path, 'left_robot_base')
     right_chain, right_base_transform = create_chain_from_mjcf(xml_file_path, 'right_robot_base')
-    
-    # 打印基座变换矩阵的RPY欧拉角
-    print("\n=== 基座变换矩阵分析 ===")
-    
-    # 提取左臂基座变换的旋转矩阵并转换为RPY
-    left_rotation = left_base_transform[:3, :3]
-    left_rpy = Rotation.from_matrix(left_rotation).as_euler('xyz', degrees=True)
-    print(f"T_W_B1 (左臂基座变换):")
-    print(f"  位置: {left_base_transform[:3, 3]}")
-    print(f"  RPY (度): Roll={left_rpy[0]:.2f}, Pitch={left_rpy[1]:.2f}, Yaw={left_rpy[2]:.2f}")
-    print(f"  旋转矩阵:")
-    print(left_rotation)
-    
-    # 提取右臂基座变换的旋转矩阵并转换为RPY
-    right_rotation = right_base_transform[:3, :3]
-    right_rpy = Rotation.from_matrix(right_rotation).as_euler('xyz', degrees=True)
-    print(f"\nT_W_B2 (右臂基座变换):")
-    print(f"  位置: {right_base_transform[:3, 3]}")
-    print(f"  RPY (度): Roll={right_rpy[0]:.2f}, Pitch={right_rpy[1]:.2f}, Yaw={right_rpy[2]:.2f}")
-    print(f"  旋转矩阵:")
-    print(right_rotation)
-    
-    # 计算两基座之间的相对变换
-    relative_transform = np.linalg.inv(left_base_transform) @ right_base_transform
-    relative_rotation = relative_transform[:3, :3]
-    relative_rpy = Rotation.from_matrix(relative_rotation).as_euler('xyz', degrees=True)
-    print(f"\n相对变换 (T_B1_B2 = inv(T_W_B1) @ T_W_B2):")
-    print(f"  相对位置: {relative_transform[:3, 3]}")
-    print(f"  相对RPY (度): Roll={relative_rpy[0]:.2f}, Pitch={relative_rpy[1]:.2f}, Yaw={relative_rpy[2]:.2f}")
-    print(f"  相对旋转矩阵:")
-    print(relative_rotation)
-    
     return left_chain, right_chain, left_base_transform, right_base_transform
 
 
-def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, show_calculation_steps=False, show_optimization_animation=False):
+def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
     """
     求解双臂系统的闭环逆运动学。
     
@@ -329,8 +290,6 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, show_calculati
         target_pose_M (np.ndarray): 虚拟物体中点M的目标4x4变换矩阵
         initial_q (np.ndarray): 12个关节角度的初始猜测值 (左臂6个 + 右臂6个)
         chains_and_bases (tuple): 包含运动学链和基座变换的元组
-        show_calculation_steps (bool): 是否显示计算步骤
-        show_optimization_animation (bool): 是否在MuJoCo中展示优化动画
     
     Returns:
         np.ndarray or None: 求解得到的12个关节角度，如果求解失败则返回None
@@ -342,54 +301,28 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, show_calculati
     # M是杆的中点，所以每个夹爪距离M为10cm。
 
     # T_E1_M: 从左臂末端(E1)坐标系到中点(M)坐标系的变换。
-    # 假设E1的Z轴朝向M，所以M在E1的Z轴正方向0.1m处。
-    # 数学公式: T_E1_M = [I    [0, 0, 0.1]ᵀ]
+    # 假设E1的Z轴朝向M，所以M在E1的Z轴正方向0.24m处。
+    # 数学公式: T_E1_M = [I    [0, 0, 0.24]ᵀ]
     #                     [0    1           ]
     T_E1_M = np.eye(4)
-    T_E1_M[2, 3] = 0.122
+    T_E1_M[2, 3] = 0.24
 
     # T_E2_M: 从右臂末端(E2)坐标系到中点(M)坐标系的变换。
     # 为了让E2与E1相对，E2需要绕其Y轴旋转180度。
-    # 旋转后，M也位于E2的(新)Z轴正方向0.1m处。
-    # 数学公式: T_E2_M = R_y(π) @ [I    [0, 0, -0.1]ᵀ]
+    # 旋转后，M也位于E2的(新)Z轴正方向0.24m处。
+    # 数学公式: T_E2_M = R_y(π) @ [I    [0, 0, 0.24]ᵀ]
     #                               [0    1            ]
     # 其中 R_y(π) = [cos(π)  0  sin(π)] = [-1  0  0]
     #                [0       1  0     ]   [0   1  0]
     #                [-sin(π) 0  cos(π)]   [0   0  -1]
     T_E2_M = np.eye(4)
-    # T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
-    T_E2_M[:3, 3] = np.array([0, 0, 0.122])
+    T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
+    T_E2_M[:3, 3] = np.array([0, 0, 0.24])
 
     # T_E1_E2 是从左臂末端到右臂末端的恒定变换，这是核心的闭环约束。
     # 数学公式: T_E1_E2 = T_E1_M @ inv(T_E2_M)
     # 这个变换必须保持恒定，确保两个手臂末端始终保持正确的相对位姿
     T_E1_E2 = T_E1_M @ np.linalg.inv(T_E2_M)
-
-    # 用于记录计算步骤的列表
-    calculation_steps = []
-    
-    # 如果启用动画，初始化MuJoCo viewer
-    viewer = None
-    model = None
-    data = None
-    if show_optimization_animation:
-        try:
-            import mujoco
-            import mujoco.viewer
-            xml_file = 'dual_elfin15_scene_clean.xml'
-            model = mujoco.MjModel.from_xml_path(xml_file)
-            data = mujoco.MjData(model)
-            viewer = mujoco.viewer.launch_passive(model, data)
-            viewer.cam.distance = 3.0
-            viewer.cam.azimuth = 45
-            viewer.cam.elevation = -20
-            print("MuJoCo viewer已启动，将实时展示优化过程...")
-        except ImportError:
-            print("无法导入mujoco.viewer，将跳过动画展示")
-            show_optimization_animation = False
-        except Exception as e:
-            print(f"初始化MuJoCo viewer时出错: {e}")
-            show_optimization_animation = False
 
     def objective(q):
         """
@@ -477,44 +410,6 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, show_calculati
         # 我们给闭环约束误差一个很大的权重(100)，因为这个约束必须被严格遵守。
         # 数学公式: total_error = pos_error + orient_error + λ(constraint_pos_error + constraint_orient_error)
         error = pos_error + orient_error + 100 * (constraint_pos_error + constraint_orient_error)
-        
-        # 记录计算步骤
-        if show_calculation_steps:
-            step_info = {
-                'iteration': len(calculation_steps) + 1,
-                'q1': q1.copy(),
-                'q2': q2.copy(),
-                'pos_error': pos_error,
-                'orient_error': orient_error,
-                'constraint_pos_error': constraint_pos_error,
-                'constraint_orient_error': constraint_orient_error,
-                'total_error': error,
-                'T_W_M_current': T_W_M_from_E1.copy(),
-                'T_E1_E2_current': T_E1_E2_current.copy()
-            }
-            calculation_steps.append(step_info)
-            
-            # 如果启用动画，更新MuJoCo viewer
-            if show_optimization_animation and viewer is not None and model is not None and data is not None:
-                try:
-                    # 更新关节角度
-                    data.qpos[:12] = q
-                    mujoco.mj_forward(model, data)
-                    
-                    # 同步viewer
-                    viewer.sync()
-                    
-                    # 添加短暂延迟以便观察
-                    import time
-                    time.sleep(0.01)  # 10ms延迟
-                    
-                    # 每100次迭代显示一次进度
-                    if len(calculation_steps) % 100 == 0:
-                        print(f"优化进度: {len(calculation_steps)} 次迭代, 当前误差: {error:.6f}")
-                        
-                except Exception as e:
-                    print(f"更新MuJoCo viewer时出错: {e}")
-        
         return error
 
     # 从运动学链中为活动关节提取关节限制 (bounds)
@@ -605,60 +500,13 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, show_calculati
         objective,  # 目标函数 (我们要最小化的)
         initial_q,  # 初始猜测值
         method='SLSQP',  # 一种支持约束和边界的优化算法
-        # bounds=bounds,  # 关节角度的边界
-        # constraints=constraints,  # 约束条件
-        options={'disp': True, 'maxiter': 1000, 'ftol': 1e-6}  # 优化器选项
+        bounds=bounds,  # 关节角度的边界
+        constraints=constraints,  # 约束条件
+        options={'disp': True, 'maxiter': 1000, 'ftol': 1e-4}  # 优化器选项
     )
 
     if result.success:
         print("IK solution found.")
-        
-        # 展示计算步骤（如果启用）
-        if show_calculation_steps and calculation_steps:
-            print(f"\n=== 优化过程分析 ===")
-            print(f"总共记录了 {len(calculation_steps)} 次迭代")
-            
-            # 显示关键迭代步骤
-            key_iterations = [1, len(calculation_steps)//4, len(calculation_steps)//2, 
-                            3*len(calculation_steps)//4, len(calculation_steps)]
-            key_iterations = list(set(key_iterations))  # 去重
-            key_iterations.sort()
-            
-            print(f"\n关键迭代步骤分析:")
-            for i, step_idx in enumerate(key_iterations):
-                if step_idx <= len(calculation_steps):
-                    step = calculation_steps[step_idx - 1]
-                    print(f"\n--- 第 {step['iteration']} 次迭代 ---")
-                    print(f"  位置误差: {step['pos_error']:.6f} 米")
-                    print(f"  姿态误差: {step['orient_error']:.6f}")
-                    print(f"  闭环位置误差: {step['constraint_pos_error']:.6f} 米")
-                    print(f"  闭环姿态误差: {step['constraint_orient_error']:.6f}")
-                    print(f"  总误差: {step['total_error']:.6f}")
-                    
-                    # 显示虚拟物体中点位置变化
-                    current_pos = step['T_W_M_current'][:3, 3]
-                    target_pos = target_pose_M[:3, 3]
-                    pos_diff = np.linalg.norm(current_pos - target_pos)
-                    print(f"  虚拟物体中点位置: {current_pos}")
-                    print(f"  与目标位置距离: {pos_diff:.6f} 米")
-            
-            # 显示收敛趋势
-            print(f"\n=== 收敛趋势分析 ===")
-            errors = [step['total_error'] for step in calculation_steps]
-            pos_errors = [step['pos_error'] for step in calculation_steps]
-            constraint_errors = [step['constraint_pos_error'] for step in calculation_steps]
-            
-            print(f"初始总误差: {errors[0]:.6f}")
-            print(f"最终总误差: {errors[-1]:.6f}")
-            print(f"误差减少: {errors[0] - errors[-1]:.6f} ({((errors[0] - errors[-1])/errors[0]*100):.2f}%)")
-            
-            print(f"初始位置误差: {pos_errors[0]:.6f} 米")
-            print(f"最终位置误差: {pos_errors[-1]:.6f} 米")
-            print(f"位置误差减少: {pos_errors[0] - pos_errors[-1]:.6f} 米")
-            
-            print(f"初始闭环约束误差: {constraint_errors[0]:.6f} 米")
-            print(f"最终闭环约束误差: {constraint_errors[-1]:.6f} 米")
-        
         return result.x  # 返回找到的关节角度
     else:
         print("IK solution not found.")
@@ -722,7 +570,7 @@ if __name__ == '__main__':
     # 计算虚拟物体中点M在home位姿下的实际位姿
     # 使用左臂末端计算M的位姿
     T_E1_M = np.eye(4)
-    T_E1_M[2, 3] = 0.122  # M在E1的Z轴正方向0.1m处
+    T_E1_M[2, 3] = 0.24  # M在E1的Z轴正方向0.24m处
     T_W_M_home = T_W_E1_home @ T_E1_M
     
     # 使用这个实际位姿作为目标位姿
@@ -740,56 +588,51 @@ if __name__ == '__main__':
     print(f"相对旋转矩阵:")
     print(T_E1_E2_home[:3, :3])
 
-    # --- 2.5. 展示Home位姿 (可选) ---
-    show_home_pose = False  # 设置为True可以展示home位姿
-    
-    if show_home_pose:
-        print("\n正在展示Home关键帧下的双臂位姿...")
-        try:
-            import mujoco
-            import mujoco.viewer
+    # --- 2.5. 展示Home位姿 ---
+    print("\n正在展示Home关键帧下的双臂位姿...")
+    try:
+        import mujoco
+        import mujoco.viewer
 
-            # 加载MuJoCo模型
-            model = mujoco.MjModel.from_xml_path(xml_file)
-            data = mujoco.MjData(model)
+        # 加载MuJoCo模型
+        model = mujoco.MjModel.from_xml_path(xml_file)
+        data = mujoco.MjData(model)
 
-            # 设置home关键帧的关节角度
-            data.qpos[:12] = home_q
+        # 设置home关键帧的关节角度
+        data.qpos[:12] = home_q
 
-            # 更新所有相关的仿真数据
-            mujoco.mj_forward(model, data)
+        # 更新所有相关的仿真数据
+        mujoco.mj_forward(model, data)
+        
+        # 使用MuJoCo viewer展示home位姿
+        print("正在启动MuJoCo viewer展示Home位姿...")
+        print("按ESC键退出查看器")
+        
+        with mujoco.viewer.launch_passive(model, data) as viewer:
+            # 设置相机位置以便更好地观察双臂
+            viewer.cam.distance = 3.0  # 相机距离
+            viewer.cam.azimuth = 45    # 方位角
+            viewer.cam.elevation = -20  # 仰角
             
-            # 使用MuJoCo viewer展示home位姿
-            print("正在启动MuJoCo viewer展示Home位姿...")
-            print("按ESC键退出查看器")
+            # 显示home位姿信息
+            print("=== Home关键帧位姿信息 ===")
+            print("左臂关节角度 (度):", np.rad2deg(home_q1))
+            print("右臂关节角度 (度):", np.rad2deg(home_q2))
+            print("虚拟物体中点位置:", target_pose_M[:3, 3])
+            print("左臂末端位置:", T_W_E1_home[:3, 3])
+            print("右臂末端位置:", T_W_E2_home[:3, 3])
+            print("两臂末端距离:", np.linalg.norm(T_W_E2_home[:3, 3] - T_W_E1_home[:3, 3]))
             
-            with mujoco.viewer.launch_passive(model, data) as viewer:
-                # 设置相机位置以便更好地观察双臂
-                viewer.cam.distance = 3.0  # 相机距离
-                viewer.cam.azimuth = 45    # 方位角
-                viewer.cam.elevation = -20  # 仰角
+            # 保持viewer运行，直到用户关闭
+            while viewer.is_running():
+                viewer.sync()
                 
-                # 显示home位姿信息
-                print("=== Home关键帧位姿信息 ===")
-                print("左臂关节角度 (度):", np.rad2deg(home_q1))
-                print("右臂关节角度 (度):", np.rad2deg(home_q2))
-                print("虚拟物体中点位置:", target_pose_M[:3, 3])
-                print("左臂末端位置:", T_W_E1_home[:3, 3])
-                print("右臂末端位置:", T_W_E2_home[:3, 3])
-                print("两臂末端距离:", np.linalg.norm(T_W_E2_home[:3, 3] - T_W_E1_home[:3, 3]))
-                
-                # 保持viewer运行，直到用户关闭
-                while viewer.is_running():
-                    viewer.sync()
-                    
-        except ImportError:
-            print("\n无法导入 'mujoco.viewer'。")
-            print("请确保MuJoCo已正确安装并支持viewer功能。")
-        except Exception as e:
-            print(f"\n可视化过程中发生错误: {e}")
-            print("继续执行逆运动学求解...")
-    else:
-        print("\n跳过Home位姿展示，直接进行逆运动学求解...")
+    except ImportError:
+        print("\n无法导入 'mujoco.viewer'。")
+        print("请确保MuJoCo已正确安装并支持viewer功能。")
+    except Exception as e:
+        print(f"\n可视化过程中发生错误: {e}")
+        print("继续执行逆运动学求解...")
 
     # --- 3. 求解阶段 ---
     # 使用home关键帧的关节角度作为优化的初始猜测值
@@ -798,9 +641,7 @@ if __name__ == '__main__':
     print(f"\n使用'home'关键帧的关节角度作为初始猜测值: {initial_q}")
 
     print("\n正在求解双臂逆运动学...")
-    # 启用计算步骤记录和优化动画
-    solution_q = solve_dual_arm_ik(target_pose_M, initial_q, kinematics_data, 
-                                  show_calculation_steps=True, show_optimization_animation=True)
+    solution_q = solve_dual_arm_ik(target_pose_M, initial_q, kinematics_data)
 
     # --- 4. 验证阶段 ---
     if solution_q is not None:
@@ -824,7 +665,7 @@ if __name__ == '__main__':
         # 注意：这里的 T_E1_M 必须与上面 solve_dual_arm_ik 中定义的完全一致
         # 数学公式: T_W_M_sol = T_W_E1_sol @ T_E1_M
         T_E1_M = np.eye(4)
-        T_E1_M[2, 3] = 0.122
+        T_E1_M[2, 3] = 0.24
         T_W_M_sol = T_W_E1_sol @ T_E1_M
 
         print("\n求解得到的虚拟物体中点位姿:")
@@ -839,10 +680,10 @@ if __name__ == '__main__':
         # 注意：这里的 T_E1_M 和 T_E2_M 的定义也必须与上面 solve_dual_arm_ik 中定义的完全一致
         # 数学公式: T_E1_E2_sol = inv(T_W_E1_sol) @ T_W_E2_sol
         T_E1_M = np.eye(4)
-        T_E1_M[2, 3] = 0.122
+        T_E1_M[2, 3] = 0.24
         T_E2_M = np.eye(4)
-        # T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
-        T_E2_M[:3, 3] = np.array([0, 0, 0.122])
+        T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
+        T_E2_M[:3, 3] = np.array([0, 0, 0.24])
         T_E1_E2_target = T_E1_M @ np.linalg.inv(T_E2_M)
         T_E1_E2_sol = np.linalg.inv(T_W_E1_sol) @ T_W_E2_sol
         

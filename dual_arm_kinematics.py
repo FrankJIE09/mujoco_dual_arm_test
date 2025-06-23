@@ -292,7 +292,7 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
         chains_and_bases (tuple): 包含运动学链和基座变换的元组
     
     Returns:
-        np.ndarray or None: 求解得到的12个关节角度，如果求解失败则返回None
+        tuple: (求解得到的12个关节角度, 迭代历史记录) 如果求解失败则返回(None, None)
     """
     left_chain, right_chain, T_W_B1, T_W_B2 = chains_and_bases
 
@@ -323,6 +323,9 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
     # 数学公式: T_E1_E2 = T_E1_M @ inv(T_E2_M)
     # 这个变换必须保持恒定，确保两个手臂末端始终保持正确的相对位姿
     T_E1_E2 = T_E1_M @ np.linalg.inv(T_E2_M)
+
+    # 用于记录迭代历史的列表
+    iteration_history = []
 
     def objective(q):
         """
@@ -411,6 +414,25 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
         # 数学公式: total_error = pos_error + orient_error + λ(constraint_pos_error + constraint_orient_error)
         error = pos_error + orient_error + 100 * (constraint_pos_error + constraint_orient_error)
         return error
+
+    def callback(xk):
+        """
+        优化器的回调函数，用于记录每次迭代的信息
+        """
+        # 记录当前迭代的关节角度和误差
+        current_error = objective(xk)
+        iteration_info = {
+            'iteration': len(iteration_history) + 1,
+            'joint_angles': xk.copy(),
+            'error': current_error,
+            'left_arm_angles': xk[:6],
+            'right_arm_angles': xk[6:]
+        }
+        iteration_history.append(iteration_info)
+        
+        # 每10次迭代打印一次进度
+        if len(iteration_history) % 10 == 0:
+            print(f"迭代 {len(iteration_history)}: 误差 = {current_error:.6f}")
 
     # 从运动学链中为活动关节提取关节限制 (bounds)
     bounds_l = [l.bounds for l, active in zip(left_chain.links, left_chain.active_links_mask) if active]
@@ -502,16 +524,17 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
         method='SLSQP',  # 一种支持约束和边界的优化算法
         bounds=bounds,  # 关节角度的边界
         constraints=constraints,  # 约束条件
-        options={'disp': True, 'maxiter': 1000, 'ftol': 1e-4}  # 优化器选项
+        options={'disp': True, 'maxiter': 1000, 'ftol': 1e-4},  # 优化器选项
+        callback=callback  # 回调函数，记录迭代历史
     )
 
     if result.success:
         print("IK solution found.")
-        return result.x  # 返回找到的关节角度
+        return result.x, iteration_history  # 返回找到的关节角度和迭代历史
     else:
         print("IK solution not found.")
         print(result.message)
-        return None
+        return None, iteration_history
 
 
 if __name__ == '__main__':
@@ -641,7 +664,7 @@ if __name__ == '__main__':
     print(f"\n使用'home'关键帧的关节角度作为初始猜测值: {initial_q}")
 
     print("\n正在求解双臂逆运动学...")
-    solution_q = solve_dual_arm_ik(target_pose_M, initial_q, kinematics_data)
+    solution_q, iteration_history = solve_dual_arm_ik(target_pose_M, initial_q, kinematics_data)
 
     # --- 4. 验证阶段 ---
     if solution_q is not None:
@@ -691,24 +714,105 @@ if __name__ == '__main__':
         constraint_pos_diff = np.linalg.norm(T_E1_E2_sol[:3, 3] - T_E1_E2_target[:3, 3])
         print(f"闭环约束位置误差: {constraint_pos_diff:.6f} 米")
 
+        # 显示优化结果
+        print(f"\n优化结果:")
+        print(f"  优化成功: 是")
+        print(f"  最终误差值: {iteration_history[-1]['error']:.6f}")
+        print(f"  迭代次数: {len(iteration_history)}")
+        print(f"  函数评估次数: {len(iteration_history)}")  # 每次迭代调用一次目标函数
+
+        # 可视化迭代历史
+        print(f"\n迭代历史统计:")
+        print(f"  总迭代次数: {len(iteration_history)}")
+        print(f"  初始误差: {iteration_history[0]['error']:.6f}")
+        print(f"  最终误差: {iteration_history[-1]['error']:.6f}")
+        print(f"  误差改善: {iteration_history[0]['error'] - iteration_history[-1]['error']:.6f}")
+
+        # --- 4.5. 可视化迭代历史 ---
+        print("\n正在可视化迭代历史...")
+        try:
+            import matplotlib.pyplot as plt
+            import matplotlib.font_manager as fm
+
+            # 设置中文字体支持
+            plt.rcParams['font.sans-serif'] = ['SimHei', 'DejaVu Sans', 'Arial Unicode MS', 'sans-serif']
+            plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+            # 提取误差和迭代次数
+            errors = [info['error'] for info in iteration_history]
+            iterations = [info['iteration'] for info in iteration_history]
+
+            # 创建图形
+            plt.figure(figsize=(12, 8))
+            
+            # 子图1: 误差收敛曲线
+            plt.subplot(2, 2, 1)
+            plt.plot(iterations, errors, 'b-o', markersize=3)
+            plt.title('Error Convergence Curve', fontsize=12)
+            plt.xlabel('Iteration Number', fontsize=10)
+            plt.ylabel('Error Value', fontsize=10)
+            plt.grid(True)
+            plt.yscale('log')  # 使用对数坐标更好地显示收敛
+            
+            # 子图2: 左臂关节角度变化
+            plt.subplot(2, 2, 2)
+            left_angles_history = np.array([info['left_arm_angles'] for info in iteration_history])
+            for i in range(6):
+                plt.plot(iterations, np.rad2deg(left_angles_history[:, i]), 
+                        label=f'Joint {i+1}', marker='o', markersize=2)
+            plt.title('Left Arm Joint Angles', fontsize=12)
+            plt.xlabel('Iteration Number', fontsize=10)
+            plt.ylabel('Angle (degrees)', fontsize=10)
+            plt.legend()
+            plt.grid(True)
+            
+            # 子图3: 右臂关节角度变化
+            plt.subplot(2, 2, 3)
+            right_angles_history = np.array([info['right_arm_angles'] for info in iteration_history])
+            for i in range(6):
+                plt.plot(iterations, np.rad2deg(right_angles_history[:, i]), 
+                        label=f'Joint {i+1}', marker='o', markersize=2)
+            plt.title('Right Arm Joint Angles', fontsize=12)
+            plt.xlabel('Iteration Number', fontsize=10)
+            plt.ylabel('Angle (degrees)', fontsize=10)
+            plt.legend()
+            plt.grid(True)
+            
+            # 子图4: 误差改善百分比
+            plt.subplot(2, 2, 4)
+            initial_error = errors[0]
+            error_improvement = [(initial_error - err) / initial_error * 100 for err in errors]
+            plt.plot(iterations, error_improvement, 'g-o', markersize=3)
+            plt.title('Error Improvement Percentage', fontsize=12)
+            plt.xlabel('Iteration Number', fontsize=10)
+            plt.ylabel('Improvement (%)', fontsize=10)
+            plt.grid(True)
+            
+            plt.tight_layout()
+            plt.savefig('optimization_history.png', dpi=300, bbox_inches='tight')
+            plt.show()
+            print("迭代历史图表已保存为 'optimization_history.png'")
+            
+        except ImportError:
+            print("\n无法导入 'matplotlib'。")
+            print("请安装matplotlib以查看迭代历史图表: pip install matplotlib")
+        except Exception as e:
+            print(f"\n可视化迭代历史过程中发生错误: {e}")
+            print("继续执行...")
+
         # --- 5. 可视化阶段 ---
         print("\n正在使用MuJoCo viewer展示结果...")
         try:
             import mujoco
             import mujoco.viewer
+            import time
 
             # 加载MuJoCo模型
             model = mujoco.MjModel.from_xml_path(xml_file)
             data = mujoco.MjData(model)
 
-            # 将计算出的关节角度设置为模型的姿态
-            data.qpos[:12] = solution_q
-
-            # 更新所有相关的仿真数据 (例如几何体的位置)
-            mujoco.mj_forward(model, data)
-            
-            # 使用MuJoCo viewer直接展示结果
-            print("正在启动MuJoCo viewer...")
+            # 使用MuJoCo viewer展示迭代过程
+            print("正在启动MuJoCo viewer展示迭代过程...")
             print("按ESC键退出查看器")
             
             with mujoco.viewer.launch_passive(model, data) as viewer:
@@ -717,13 +821,36 @@ if __name__ == '__main__':
                 viewer.cam.azimuth = 45    # 方位角
                 viewer.cam.elevation = -20  # 仰角
                 
-                # 显示求解结果
-                print("双臂机器人已到达目标位姿")
-                print("左臂关节角度 (度):", np.rad2deg(q1_sol))
-                print("右臂关节角度 (度):", np.rad2deg(q2_sol))
-                print("虚拟物体中点位置:", T_W_M_sol[:3, 3])
-                print("位置误差:", f"{pos_diff:.6f} 米")
-                print("闭环约束误差:", f"{constraint_pos_diff:.6f} 米")
+                # 展示迭代过程
+                print("展示迭代过程...")
+                print("按空格键暂停/继续，按ESC键退出")
+                
+                # 选择要展示的关键迭代点
+                key_iterations = [0, len(iteration_history)//4, len(iteration_history)//2, 
+                                3*len(iteration_history)//4, len(iteration_history)-1]
+                
+                for i, iter_idx in enumerate(key_iterations):
+                    if iter_idx < len(iteration_history):
+                        info = iteration_history[iter_idx]
+                        
+                        # 设置关节角度
+                        data.qpos[:12] = info['joint_angles']
+                        mujoco.mj_forward(model, data)
+                        
+                        # 显示当前迭代信息
+                        print(f"迭代 {info['iteration']}: 误差 = {info['error']:.6f}")
+                        
+                        # 更新viewer
+                        viewer.sync()
+                        
+                        # 等待一段时间让用户观察
+                        time.sleep(2)
+                
+                # 最后展示最终结果
+                print("展示最终结果...")
+                data.qpos[:12] = solution_q
+                mujoco.mj_forward(model, data)
+                viewer.sync()
                 
                 # 保持viewer运行，直到用户关闭
                 while viewer.is_running():
@@ -766,6 +893,6 @@ if __name__ == '__main__':
             # 显示优化结果
             print(f"\n优化结果:")
             print(f"  优化成功: 是")
-            print(f"  最终误差值: {result.fun:.6f}")
-            print(f"  迭代次数: {result.nit}")
-            print(f"  函数评估次数: {result.nfev}")
+            print(f"  最终误差值: {iteration_history[-1]['error']:.6f}")
+            print(f"  迭代次数: {len(iteration_history)}")
+            print(f"  函数评估次数: {len(iteration_history)}")  # 每次迭代调用一次目标函数

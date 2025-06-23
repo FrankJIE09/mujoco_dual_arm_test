@@ -355,21 +355,26 @@ class BezierPathPlanner:
         保存轨迹数据到文件
         
         Args:
-            joint_trajectory (list): 原始关节轨迹
-            smoothed_trajectory (list): 平滑后的关节轨迹
-            base_filename (str): 基础文件名
+            joint_trajectory (np.ndarray): 原始关节轨迹
+            smoothed_trajectory (np.ndarray): 平滑后的关节轨迹
+            base_filename (str): 输出文件名前缀
         """
-        # 保存原始轨迹
-        raw_filename = f"{base_filename}_raw.npy"
-        np.save(raw_filename, np.array(joint_trajectory))
-        print(f"原始轨迹已保存为: {raw_filename}")
+        self.output_trajectory_file = f"{base_filename}_smoothed.npy"
         
-        # 保存平滑轨迹
-        smooth_filename = f"{base_filename}_smooth.npy"
-        np.save(smooth_filename, np.array(smoothed_trajectory))
-        print(f"平滑轨迹已保存为: {smooth_filename}")
-        
-        # 保存轨迹摘要信息
+        # 修复：使用 .size > 0 来明确判断Numpy数组是否为空
+        if joint_trajectory.size > 0:
+            np.save(f"{base_filename}_raw.npy", joint_trajectory)
+            print(f"原始轨迹已保存到: {base_filename}_raw.npy")
+        else:
+            print("原始轨迹为空，不进行保存。")
+
+        if smoothed_trajectory.size > 0:
+            np.save(self.output_trajectory_file, smoothed_trajectory)
+            print(f"平滑后的轨迹已保存到: {self.output_trajectory_file}")
+        else:
+            print("平滑后的轨迹为空，不进行保存。")
+
+        # 创建一个包含轨迹信息的摘要文件
         summary_filename = f"{base_filename}_summary.txt"
         with open(summary_filename, 'w', encoding='utf-8') as f:
             f.write("=" * 50 + "\n")
@@ -382,8 +387,8 @@ class BezierPathPlanner:
             f.write("\n")
             
             # 分析关节角度变化范围
-            if joint_trajectory:
-                trajectory_array = np.array(joint_trajectory)
+            if joint_trajectory.size > 0:
+                trajectory_array = joint_trajectory
                 f.write("左臂关节角度范围 (度):\n")
                 for i in range(6):
                     min_angle = np.rad2deg(np.min(trajectory_array[:, i]))

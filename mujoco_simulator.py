@@ -14,6 +14,7 @@ MuJoCo双臂机器人仿真模块
 
 import numpy as np
 import time
+from velocity_controller import VelocityController
 
 
 class DualArmSimulator:
@@ -69,12 +70,14 @@ class DualArmSimulator:
         print(f"   方位角: {azimuth}° ({'正前方' if azimuth == 0 else '右侧' if azimuth == 90 else '正后方' if azimuth == 180 else '左侧' if azimuth == 270 else '自定义'})")
         print(f"   仰角: {elevation}° ({'俯视' if elevation > 0 else '仰视' if elevation < 0 else '水平'})")
     
-    def animate_trajectory(self, joint_trajectory, dt=0.1, realtime=True, loop=False):
+    def animate_trajectory(self, joint_trajectory, control_mode='position', kp=10.0, dt=0.1, realtime=True, loop=False):
         """
         动画播放关节轨迹
         
         Args:
             joint_trajectory (list or np.ndarray): 关节角度轨迹
+            control_mode (str): 控制模式, 'position' 或 'velocity_servo'
+            kp (float): 速度伺服模式下的比例增益
             dt (float): 时间步长 (秒)
             realtime (bool): 是否实时播放
             loop (bool): 是否循环播放
@@ -89,8 +92,8 @@ class DualArmSimulator:
         else:
             trajectory_array = joint_trajectory
             
-        if len(trajectory_array.shape) != 2 or trajectory_array.shape[1] != 12:
-            print(f"❌ 轨迹数据格式错误，期望形状为 (N, 12)，实际为 {trajectory_array.shape}")
+        if len(trajectory_array.shape) != 2 or trajectory_array.shape[1] != self.model.nq:
+            print(f"❌ 轨迹数据格式错误，期望形状为 (N, {self.model.nq})，实际为 {trajectory_array.shape}")
             return
             
         try:
@@ -98,6 +101,10 @@ class DualArmSimulator:
             import mujoco.viewer
             
             print(f"🎬 开始播放轨迹动画")
+            print(f"   控制模式: {'直接位置控制' if control_mode == 'position' else '速度伺服控制'}")
+            if control_mode == 'velocity_servo':
+                print(f"   P 控制增益 (Kp): {kp}")
+
             print(f"   轨迹点数: {len(trajectory_array)}")
             print(f"   播放速度: {'实时' if realtime else '快速'}")
             print(f"   时间步长: {dt}s")
@@ -108,51 +115,91 @@ class DualArmSimulator:
             print("   鼠标: 旋转视角")
             print("   滚轮: 缩放")
             
+            # 初始化速度控制器
+            if control_mode == 'velocity_servo':
+                controller = VelocityController(kp=kp)
+                # 计算每个轨迹点需要仿真的步数
+                n_steps = int(dt / self.model.opt.timestep)
+                print(f"   每个轨迹点将仿真 {n_steps} 步 (仿真步长: {self.model.opt.timestep * 1000:.2f} ms)")
+
             with mujoco.viewer.launch_passive(self.model, self.data) as viewer:
                 # 设置相机位置和视角参数
-                viewer.cam.distance = self.camera_distance      # 相机距离：相机到观察目标的距离(米)，值越大视野越远
-                viewer.cam.azimuth = self.camera_azimuth        # 方位角：水平旋转角度(度)，0°=正前方，90°=右侧，180°=正后方，270°=左侧
-                viewer.cam.elevation = self.camera_elevation    # 仰角：垂直角度(度)，正值=俯视，负值=仰视，0°=水平视角
+                viewer.cam.distance = self.camera_distance
+                viewer.cam.azimuth = self.camera_azimuth
+                viewer.cam.elevation = self.camera_elevation
                 
                 frame_idx = 0
                 play_count = 0
                 
+                start_time = time.time()
+                sim_time = 0
+
                 while viewer.is_running():
-                    current_time = time.time()
                     
-                    # 设置关节角度
                     if frame_idx < len(trajectory_array):
-                        self.data.qpos[:12] = trajectory_array[frame_idx]
-                        
-                        # 前向动力学
-                        mujoco.mj_forward(self.model, self.data)
-                        
-                        # 更新显示
-                        viewer.sync()
+                        target_qpos = trajectory_array[frame_idx]
+
+                        if control_mode == 'position':
+                            # --- 模式1: 直接设置关节位置 (运动学) ---
+                            self.data.qpos[:self.model.nq] = target_qpos
+                            mujoco.mj_forward(self.model, self.data)
+                            viewer.sync()
+                            if realtime:
+                                time.sleep(dt)
+
+                        elif control_mode == 'velocity_servo':
+                            # --- 模式2: 速度伺服控制 (动力学) ---
+                            # 在 dt 时间内通过P控制器跟踪目标位置
+                            for _ in range(n_steps):
+                                current_qpos = self.data.qpos[:self.model.nq]
+                                vel_command = controller.compute_velocity(target_qpos, current_qpos)
+                                
+                                # 将速度指令发送给执行器
+                                self.data.ctrl[:self.model.nu] = vel_command
+                                
+                                # 执行一步仿真
+                                mujoco.mj_step(self.model, self.data)
+                            
+                            # 更新显示
+                            viewer.sync()
+                            
+                            # 实时播放控制
+                            if realtime:
+                                sim_time += dt
+                                elapsed_time = time.time() - start_time
+                                sleep_time = sim_time - elapsed_time
+                                if sleep_time > 0:
+                                    time.sleep(sleep_time)
+
+                        # 更新进度
+                        if frame_idx % 10 == 0 or frame_idx == len(trajectory_array) - 1:
+                            progress = ((frame_idx + 1) / len(trajectory_array)) * 100
+                            print(f"🎮 播放进度: {frame_idx + 1}/{len(trajectory_array)} ({progress:.1f}%)")
                         
                         frame_idx += 1
                         
-                        # 显示进度
-                        if frame_idx % 10 == 0 or frame_idx == len(trajectory_array):
-                            progress = (frame_idx / len(trajectory_array)) * 100
-                            print(f"🎮 播放进度: {frame_idx}/{len(trajectory_array)} ({progress:.1f}%)")
                     else:
                         # 轨迹播放完成
                         if loop:
                             frame_idx = 0  # 重新开始
                             play_count += 1
                             print(f"🔄 第 {play_count + 1} 次循环播放")
+                            start_time = time.time()
+                            sim_time = 0
                         else:
+                            # 保持最后一帧
+                            if control_mode == 'velocity_servo':
+                                # 清零速度，防止漂移
+                                self.data.ctrl[:self.model.nu] = 0
+                                for _ in range(100): # 稳定一下
+                                    mujoco.mj_step(self.model, self.data)
+                                viewer.sync()
+
                             print("✅ 轨迹播放完成，按ESC退出")
-                            # 保持最后一帧显示
                             while viewer.is_running():
                                 viewer.sync()
                                 time.sleep(0.01)
                             break
-                    
-                    # 控制播放速度
-                    if realtime:
-                        time.sleep(dt)
                 
         except ImportError:
             print("❌ 无法导入mujoco.viewer，使用备用显示方案")

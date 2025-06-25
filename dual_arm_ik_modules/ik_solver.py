@@ -53,7 +53,7 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
     # 数学公式: T_E1_M = [I    [0, 0, 0.24]ᵀ]
     #                     [0    1           ]
     T_E1_M = np.eye(4)
-    T_E1_M[2, 3] = 0.24
+    T_E1_M[2, 3] = 0.1
 
     # T_E2_M: 从右臂末端(E2)坐标系到中点(M)坐标系的变换。
     # 为了让E2与E1相对，E2需要绕其Y轴旋转180度。

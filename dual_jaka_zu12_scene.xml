@@ -1,0 +1,152 @@
+<?xml version="1.0" ?>
+<mujoco model="dual_jaka_zu12_clean">
+    <!-- 全局设置 -->
+    <compiler angle="radian" coordinate="local" inertiafromgeom="true"/>
+    
+    <!-- 物理参数 -->
+    <option gravity="0 0 -9.81" integrator="RK4" timestep="0.002"/>
+    
+    <!-- 资产定义 -->
+    <asset>
+        <!-- Jaka ZU12网格文件 - 左侧机械臂 -->
+        <mesh name="jaka_left_base" file="mjcf_models/jaka_zu12/base_link.STL"/>
+        <mesh name="jaka_left_link1" file="mjcf_models/jaka_zu12/1.STL"/>
+        <mesh name="jaka_left_link2" file="mjcf_models/jaka_zu12/2.STL"/>
+        <mesh name="jaka_left_link3" file="mjcf_models/jaka_zu12/3.STL"/>
+        <mesh name="jaka_left_link4" file="mjcf_models/jaka_zu12/4.STL"/>
+        <mesh name="jaka_left_link5" file="mjcf_models/jaka_zu12/5.STL"/>
+        <mesh name="jaka_left_link6" file="mjcf_models/jaka_zu12/6.STL"/>
+        
+        <!-- Jaka ZU12网格文件 - 右侧机械臂 -->
+        <mesh name="jaka_right_base" file="mjcf_models/jaka_zu12/base_link.STL"/>
+        <mesh name="jaka_right_link1" file="mjcf_models/jaka_zu12/1.STL"/>
+        <mesh name="jaka_right_link2" file="mjcf_models/jaka_zu12/2.STL"/>
+        <mesh name="jaka_right_link3" file="mjcf_models/jaka_zu12/3.STL"/>
+        <mesh name="jaka_right_link4" file="mjcf_models/jaka_zu12/4.STL"/>
+        <mesh name="jaka_right_link5" file="mjcf_models/jaka_zu12/5.STL"/>
+        <mesh name="jaka_right_link6" file="mjcf_models/jaka_zu12/6.STL"/>
+    </asset>
+    
+    <!-- 默认设置 -->
+    <default>
+        <joint armature="0.1" damping="1" limited="true"/>
+        <geom type="mesh"/>
+        <motor ctrlrange="-3.14 3.14" ctrllimited="true"/>
+    </default>
+    
+    <!-- 世界坐标系 -->
+    <worldbody>
+        <!-- 地面 -->
+        <geom name="ground" type="plane" size="2 2 0.1" rgba="0.5 0.5 0.5 1" pos="0 0 0"/>
+        
+        <!-- 光源 -->
+        <light diffuse=".8 .8 .8" pos="0 0 3" dir="0 0 -1"/>
+        <light diffuse=".3 .3 .3" pos="2 2 2" dir="-1 -1 -1"/>
+        
+        <!-- 右边侧机械臂 (红色系) -->
+<!--        <body name="left_robot_base" pos="0.04 0 1.0" euler="1.57 1.57 1.57">-->
+        <body name="left_robot_base" pos="0.0925 0 1.0" euler="1.57 1.57 1.57">
+            <geom type="mesh" rgba="0.8 0.2 0.2 1" mesh="jaka_left_base"/>
+            <body name="left_link1" pos="0 0 0.10265">
+                <inertial pos="-0.000328432 0.0040609 -0.0250109" quat="0.494863 -0.0216305 0.0243938 0.868359" mass="7.71199" diaginertia="0.0405059 0.0403714 0.0342898"/>
+                <joint name="left_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                <geom type="mesh" rgba="0.7 0.3 0.3 1" mesh="jaka_left_link1"/>
+                <body name="left_link2" quat="0.707105 0.707108 0 0">
+                    <inertial pos="0.2975 -1.25165e-08 -0.16607" quat="0.499974 0.499521 0.500477 0.500027" mass="24.8375" diaginertia="1.66881 1.65303 0.116455"/>
+                    <joint name="left_joint2" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                    <geom type="mesh" rgba="0.6 0.4 0.4 1" mesh="jaka_left_link2"/>
+                    <body name="left_link3" pos="0.595 0 0">
+                        <inertial pos="0.294234 -4.72319e-06 -0.0241861" quat="-0.00022526 0.704551 -0.000206596 0.709653" mass="10.4896" diaginertia="0.498538 0.497634 0.021265"/>
+                        <joint name="left_joint3" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                        <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="jaka_left_link3"/>
+                        <body name="left_link4" pos="0.5715 0 -0.1315">
+                            <inertial pos="4.22018e-06 -0.0150344 0.00216594" quat="0.677782 0.701328 0.159558 -0.152616" mass="2.33227" diaginertia="0.00459197 0.0045525 0.00363768"/>
+                            <joint name="left_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                            <geom type="mesh" rgba="0.4 0.6 0.6 1" mesh="jaka_left_link4"/>
+                            <body name="left_link5" pos="0 -0.115 0" quat="0.707105 0.707108 0 0">
+                                <inertial pos="3.86595e-06 0.0042653 -0.00184283" quat="0.695151 0.688192 -0.146515 0.147274" mass="2.66165" diaginertia="0.0070303 0.00698932 0.00413442"/>
+                                <joint name="left_joint5" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                                <geom type="mesh" rgba="0.3 0.7 0.7 1" mesh="jaka_left_link5"/>
+                                <body name="left_link6" pos="0 0.1035 0" quat="0.707105 -0.707108 0 0">
+                                    <inertial pos="-0.000786085 3.88801e-05 -0.0163247" quat="-0.134296 0.689453 0.135461 0.698763" mass="0.862674" diaginertia="0.00106472 0.000657738 0.000588131"/>
+                                    <joint name="left_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                                    <geom type="mesh" rgba="0.2 0.8 0.8 1" mesh="jaka_left_link6"/>
+                                    <!-- 左侧末端执行器标记 -->
+                                    <body name="left_end_effector" pos="0 0 0.05">
+                                        <geom name="left_end_marker" type="sphere" size="0.02" rgba="1 0 0 1"/>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+
+        <!-- 左侧机械臂 (绿色系) -->
+        <body name="right_robot_base" pos="-0.0925 0 1.0" euler="1.57 -1.57 1.57">
+            <geom type="mesh" rgba="0.2 0.8 0.2 1" mesh="jaka_right_base"/>
+            <body name="right_link1" pos="0 0 0.10265">
+                <inertial pos="-0.000328432 0.0040609 -0.0250109" quat="0.494863 -0.0216305 0.0243938 0.868359" mass="7.71199" diaginertia="0.0405059 0.0403714 0.0342898"/>
+                <joint name="right_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                <geom type="mesh" rgba="0.3 0.7 0.3 1" mesh="jaka_right_link1"/>
+                <body name="right_link2" quat="0.707105 0.707108 0 0">
+                    <inertial pos="0.2975 -1.25165e-08 -0.16607" quat="0.499974 0.499521 0.500477 0.500027" mass="24.8375" diaginertia="1.66881 1.65303 0.116455"/>
+                    <joint name="right_joint2" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                    <geom type="mesh" rgba="0.4 0.6 0.4 1" mesh="jaka_right_link2"/>
+                    <body name="right_link3" pos="0.595 0 0">
+                        <inertial pos="0.294234 -4.72319e-06 -0.0241861" quat="-0.00022526 0.704551 -0.000206596 0.709653" mass="10.4896" diaginertia="0.498538 0.497634 0.021265"/>
+                        <joint name="right_joint3" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                        <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="jaka_right_link3"/>
+                        <body name="right_link4" pos="0.5715 0 -0.1315">
+                            <inertial pos="4.22018e-06 -0.0150344 0.00216594" quat="0.677782 0.701328 0.159558 -0.152616" mass="2.33227" diaginertia="0.00459197 0.0045525 0.00363768"/>
+                            <joint name="right_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                            <geom type="mesh" rgba="0.6 0.4 0.6 1" mesh="jaka_right_link4"/>
+                            <body name="right_link5" pos="0 -0.115 0" quat="0.707105 0.707108 0 0">
+                                <inertial pos="3.86595e-06 0.0042653 -0.00184283" quat="0.695151 0.688192 -0.146515 0.147274" mass="2.66165" diaginertia="0.0070303 0.00698932 0.00413442"/>
+                                <joint name="right_joint5" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                                <geom type="mesh" rgba="0.7 0.3 0.7 1" mesh="jaka_right_link5"/>
+                                <body name="right_link6" pos="0 0.1035 0" quat="0.707105 -0.707108 0 0">
+                                    <inertial pos="-0.000786085 3.88801e-05 -0.0163247" quat="-0.134296 0.689453 0.135461 0.698763" mass="0.862674" diaginertia="0.00106472 0.000657738 0.000588131"/>
+                                    <joint name="right_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                                    <geom type="mesh" rgba="0.8 0.2 0.8 1" mesh="jaka_right_link6"/>
+                                    <!-- 右侧末端执行器标记 -->
+                                    <body name="right_end_effector" pos="0 0 0.05">
+                                        <geom name="right_end_marker" type="sphere" size="0.02" rgba="0 1 0 1"/>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+
+    </worldbody>
+
+    <!-- 执行器定义 -->
+    <actuator>
+        <!-- 右侧机械臂电机 -->
+        <general name="left_motor1" joint="left_joint1" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor2" joint="left_joint2" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor3" joint="left_joint3" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor4" joint="left_joint4" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor5" joint="left_joint5" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor6" joint="left_joint6" gainprm="1" ctrlrange="-3.14 3.14"/>
+
+        <!-- 左侧机械臂电机 -->
+        <general name="right_motor1" joint="right_joint1" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="right_motor2" joint="right_joint2" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="right_motor3" joint="right_joint3" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="right_motor4" joint="right_joint4" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="right_motor5" joint="right_joint5" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="right_motor6" joint="right_joint6" gainprm="1" ctrlrange="-3.14 3.14"/>
+    </actuator>
+    
+    <!-- 关键帧定义 -->
+    <keyframe>
+        <key name="key2" qpos="1.57 1.57 0 1.57 -1.57 0  1.57 1.57 0 1.57 1.57 0" ctrl="1.57 1.57 0 1.57 -1.57 0  1.57 1.57 0 1.57 1.57 0"/>
+        <key name="home" qpos="1.57 1.57 1.57 1.57 -1.57 0  1.57 1.57 -1.57 1.57 1.57 0" ctrl="1.57 1.57 1.57 1.57 -1.57 0  1.57 1.57 -1.57 1.57 1.57 0"/>
+
+    </keyframe>
+</mujoco> 

@@ -550,7 +550,7 @@ def demo_path_planning_system():
     print("=" * 60)
     
     # XML文件路径
-    xml_file = 'dual_jaka_zu12_scene.xml'
+    xml_file = 'dual_elfin15_scene_clean.xml'
     
     try:
         # 1. 初始化路径规划器

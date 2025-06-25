@@ -53,7 +53,7 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
     # 数学公式: T_E1_M = [I    [0, 0, 0.24]ᵀ]
     #                     [0    1           ]
     T_E1_M = np.eye(4)
-    T_E1_M[2, 3] = 0.1
+    T_E1_M[2, 3] = 0.0
 
     # T_E2_M: 从右臂末端(E2)坐标系到中点(M)坐标系的变换。
     # 为了让E2与E1相对，E2需要绕其Y轴旋转180度。
@@ -78,7 +78,7 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
     def objective(q):
         """
         优化问题的目标函数。
-        
+
         这个函数计算当前关节角度配置下的误差，包括：
         1. 任务空间误差：虚拟物体中点M的当前位姿与目标位姿的差距
         2. 闭环约束误差：两个手臂末端当前的相对位姿与预设的恒定位姿的差距

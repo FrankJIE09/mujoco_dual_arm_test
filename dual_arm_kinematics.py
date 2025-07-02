@@ -133,16 +133,17 @@ def get_transformation(body_element):
     euler = body_element.get('euler')
 
     rot_matrix = np.eye(3)
-    if quat:
+    if quat is not None and quat.strip():
         # MuJoCo的四元数顺序是 (w, x, y, z), 而Scipy需要 (x, y, z, w)
         # 转换公式: [w, x, y, z] → [x, y, z, w]
         q = np.fromstring(quat, sep=' ')
         rot_matrix = Rotation.from_quat([q[1], q[2], q[3], q[0]]).as_matrix()
-    elif euler:
+    elif euler is not None and euler.strip():
         # 假设欧拉角顺序为 'xyz'
         # 旋转矩阵: R = Rz(ψ) @ Ry(θ) @ Rx(φ)
-        e = np.fromstring(euler, sep=' ')
-        rot_matrix = Rotation.from_euler('XYZ', e).as_matrix()
+        robot_e = np.fromstring(euler, sep=' ')
+        rot_matrix = Rotation.from_euler('XYZ', robot_e).as_matrix()
+    # 如果既没有quat也没有euler，或者属性为空，rot_matrix保持为单位矩阵，表示无旋转
 
     # 构建4x4变换矩阵
     # 数学公式: T = [R    p]

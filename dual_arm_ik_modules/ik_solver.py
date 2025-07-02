@@ -21,7 +21,7 @@ from scipy.spatial.transform import Rotation
 from scipy.optimize import minimize
 
 
-def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
+def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T_E2_M=None):
     """
     求解双臂系统的闭环逆运动学。
     
@@ -38,6 +38,10 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
         target_pose_M (np.ndarray): 虚拟物体中点M的目标4x4变换矩阵
         initial_q (np.ndarray): 12个关节角度的初始猜测值 (左臂6个 + 右臂6个)
         chains_and_bases (tuple): 包含运动学链和基座变换的元组
+        T_E1_M (np.ndarray, optional): 左臂末端到虚拟物体中心的4x4变换矩阵。
+                                      如果为None，使用默认值（无偏移，M与E1重合）
+        T_E2_M (np.ndarray, optional): 右臂末端到虚拟物体中心的4x4变换矩阵。
+                                      如果为None，使用默认值（Y轴旋转180度，Z轴偏移0.40m）
     
     Returns:
         tuple: (求解得到的12个关节角度, 迭代历史记录) 如果求解失败则返回(None, None)
@@ -45,27 +49,25 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
     left_chain, right_chain, T_W_B1, T_W_B2 = chains_and_bases
 
     # --- 定义闭环约束 ---
-    # 假设虚拟物体是一个20cm宽的杆，两个夹爪各抓住一端。
-    # M是杆的中点，所以每个夹爪距离M为10cm。
+    # 使用用户提供的变换矩阵，或者使用默认值
 
-    # T_E1_M: 从左臂末端(E1)坐标系到中点(M)坐标系的变换。
-    # 假设E1的Z轴朝向M，所以M在E1的Z轴正方向0.24m处。
-    # 数学公式: T_E1_M = [I    [0, 0, 0.24]ᵀ]
-    #                     [0    1           ]
-    T_E1_M = np.eye(4)
-    T_E1_M[2, 3] = 0.0
+    # T_E1_M: 从左臂末端(E1)坐标系到中点(M)坐标系的变换
+    if T_E1_M is None:
+        # 默认值：M与E1重合（无偏移）
+        T_E1_M = np.eye(4)
+        T_E1_M[2, 3] = 0.0
+    else:
+        T_E1_M = np.array(T_E1_M, dtype=float)
 
-    # T_E2_M: 从右臂末端(E2)坐标系到中点(M)坐标系的变换。
-    # 为了让E2与E1相对，E2需要绕其Y轴旋转180度。
-    # 旋转后，M也位于E2的(新)Z轴正方向0.24m处。
-    # 数学公式: T_E2_M = R_y(π) @ [I    [0, 0, 0.24]ᵀ]
-    #                               [0    1            ]
-    # 其中 R_y(π) = [cos(π)  0  sin(π)] = [-1  0  0]
-    #                [0       1  0     ]   [0   1  0]
-    #                [-sin(π) 0  cos(π)]   [0   0  -1]
-    T_E2_M = np.eye(4)
-    T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
-    T_E2_M[:3, 3] = np.array([0, 0, 0.24])
+    # T_E2_M: 从右臂末端(E2)坐标系到中点(M)坐标系的变换
+    if T_E2_M is None:
+        # 默认值：为了让E2与E1相对，E2需要绕其Y轴旋转180度
+        # 旋转后，M位于E2的Z轴正方向0.40m处
+        T_E2_M = np.eye(4)
+        T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
+        T_E2_M[:3, 3] = np.array([0, 0, 0.40])
+    else:
+        T_E2_M = np.array(T_E2_M, dtype=float)
 
     # T_E1_E2 是从左臂末端到右臂末端的恒定变换，这是核心的闭环约束。
     # 数学公式: T_E1_E2 = T_E1_M @ inv(T_E2_M)
@@ -283,3 +285,141 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases):
         print("IK solution not found.")
         print(result.message)
         return None, iteration_history 
+
+
+def create_transform_matrix(position=None, rotation=None, rotation_type='euler', rotation_unit='degrees'):
+    """
+    创建4x4变换矩阵的辅助函数
+    
+    Args:
+        position (array-like, optional): [x, y, z] 位置向量，默认为 [0, 0, 0]
+        rotation (array-like, optional): 旋转参数，默认为无旋转
+        rotation_type (str): 旋转参数类型，可选：
+                           - 'euler': 欧拉角 [roll, pitch, yaw]
+                           - 'quat': 四元数 [x, y, z, w]
+                           - 'rotvec': 旋转向量 [x, y, z]
+                           - 'matrix': 3x3旋转矩阵
+        rotation_unit (str): 欧拉角和旋转向量的单位，'degrees' 或 'radians'
+    
+    Returns:
+        np.ndarray: 4x4变换矩阵
+    
+    Examples:
+        # 创建一个仅有位移的变换矩阵
+        T = create_transform_matrix(position=[0.1, 0.2, 0.3])
+        
+        # 创建一个绕Y轴旋转180度的变换矩阵
+        T = create_transform_matrix(rotation=[0, 180, 0], rotation_type='euler')
+        
+        # 创建一个同时有位移和旋转的变换矩阵
+        T = create_transform_matrix(position=[0, 0, 0.4], 
+                                  rotation=[0, 180, 0], 
+                                  rotation_type='euler')
+    """
+    T = np.eye(4)
+    
+    # 设置位置
+    if position is not None:
+        T[:3, 3] = np.array(position)
+    
+    # 设置旋转
+    if rotation is not None:
+        rotation = np.array(rotation)
+        
+        if rotation_type == 'euler':
+            # 欧拉角（XYZ顺序）
+            if rotation_unit == 'degrees':
+                R = Rotation.from_euler('xyz', rotation, degrees=True).as_matrix()
+            else:
+                R = Rotation.from_euler('xyz', rotation, degrees=False).as_matrix()
+        elif rotation_type == 'quat':
+            # 四元数 [x, y, z, w]
+            R = Rotation.from_quat(rotation).as_matrix()
+        elif rotation_type == 'rotvec':
+            # 旋转向量
+            if rotation_unit == 'degrees':
+                rotation = np.deg2rad(rotation)
+            R = Rotation.from_rotvec(rotation).as_matrix()
+        elif rotation_type == 'matrix':
+            # 旋转矩阵
+            R = np.array(rotation)
+        else:
+            raise ValueError(f"未知的旋转类型: {rotation_type}")
+        
+        T[:3, :3] = R
+    
+    return T
+
+
+def create_default_transforms():
+    """
+    创建默认的变换矩阵
+    
+    Returns:
+        tuple: (T_E1_M, T_E2_M) 默认的左臂和右臂到虚拟物体中心的变换矩阵
+    """
+    # 左臂末端到虚拟物体中心：无偏移
+    T_E1_M = create_transform_matrix(position=[0, 0, 0])
+    
+    # 右臂末端到虚拟物体中心：Y轴旋转180度，Z轴偏移0.40m
+    T_E2_M = create_transform_matrix(position=[0, 0, 0.40], 
+                                    rotation=[0, 180, 0], 
+                                    rotation_type='euler')
+    
+    return T_E1_M, T_E2_M
+
+
+def create_grasp_transforms(object_width, grasp_offset=0.0):
+    """
+    为抓取特定宽度物体创建变换矩阵
+    
+    Args:
+        object_width (float): 物体宽度（米）
+        grasp_offset (float): 手爪相对于物体边缘的额外偏移（米）
+    
+    Returns:
+        tuple: (T_E1_M, T_E2_M) 适用于抓取指定宽度物体的变换矩阵
+    
+    Examples:
+        # 抓取20cm宽的物体
+        T_E1_M, T_E2_M = create_grasp_transforms(0.20)
+        
+        # 抓取30cm宽的物体，手爪额外内收5cm
+        T_E1_M, T_E2_M = create_grasp_transforms(0.30, grasp_offset=-0.05)
+    """
+    half_width = object_width / 2.0 + grasp_offset
+    
+    # 左臂末端到物体中心：沿Z轴负方向偏移
+    T_E1_M = create_transform_matrix(position=[0, 0, -half_width])
+    
+    # 右臂末端到物体中心：Y轴旋转180度，沿Z轴正方向偏移
+    T_E2_M = create_transform_matrix(position=[0, 0, half_width], 
+                                    rotation=[0, 180, 0], 
+                                    rotation_type='euler')
+    
+    return T_E1_M, T_E2_M
+
+
+def print_transform_info(T, name="变换矩阵"):
+    """
+    打印变换矩阵的详细信息
+    
+    Args:
+        T (np.ndarray): 4x4变换矩阵
+        name (str): 矩阵名称
+    """
+    print(f"\n=== {name} ===")
+    print(f"位置 (x, y, z): [{T[0,3]:.6f}, {T[1,3]:.6f}, {T[2,3]:.6f}]")
+    
+    # 提取欧拉角
+    rotation = Rotation.from_matrix(T[:3, :3])
+    euler_xyz = rotation.as_euler('xyz', degrees=True)
+    print(f"欧拉角 XYZ (度): [{euler_xyz[0]:.2f}, {euler_xyz[1]:.2f}, {euler_xyz[2]:.2f}]")
+    
+    # 提取四元数
+    quat = rotation.as_quat()
+    print(f"四元数 (x,y,z,w): [{quat[0]:.4f}, {quat[1]:.4f}, {quat[2]:.4f}, {quat[3]:.4f}]")
+    
+    print("完整变换矩阵:")
+    print(T)
+    print("-" * 50) 

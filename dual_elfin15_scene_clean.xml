@@ -43,32 +43,32 @@
         <light diffuse=".8 .8 .8" pos="0 0 3" dir="0 0 -1"/>
         <light diffuse=".3 .3 .3" pos="2 2 2" dir="-1 -1 -1"/>
         
-        <!-- 左侧机械臂 (红色系) -->
-        <body name="left_robot_base" pos="0 0 1.0" euler="1.57 1.57 0">
+        <!-- 右侧机械臂 (红色系) -->
+        <body name="right_robot_base" pos="0 0 1.0" euler="1.57 1.57 0">
             <geom type="mesh" rgba="0.8 0.2 0.2 1" mesh="elfin_left_base"/>
-            <body name="left_link1" pos="0 0 0.262">
+            <body name="right_link1" pos="0 0 0.262">
                 <inertial pos="-1.88838e-06 -0.00357535 -0.0358732" quat="0.998738 0.0502277 4.92096e-05 -7.54994e-05" mass="26.1753" diaginertia="0.235853 0.212365 0.1579"/>
-                <joint name="left_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                <joint name="right_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
                 <geom type="mesh" rgba="0.7 0.3 0.3 1" mesh="elfin_left_link1"/>
-                <body name="left_link2" quat="0.707105 0.707108 0 0">
+                <body name="right_link2" quat="0.707105 0.707108 0 0">
                     <inertial pos="2.05933e-05 0.292081 0.154042" quat="0.513249 0.485908 -0.486417 0.513681" mass="25.7827" diaginertia="1.61404 1.59116 0.0559177"/>
-                    <joint name="left_joint2" pos="0 0 0" axis="0 0 1" range="-2.35 2.35"/>
+                    <joint name="right_joint2" pos="0 0 0" axis="0 0 1" range="-2.35 2.35"/>
                     <geom type="mesh" rgba="0.6 0.4 0.4 1" mesh="elfin_left_link2"/>
-                    <body name="left_link3" pos="0 0.73 0" quat="-2.59734e-06 0.707105 0.707108 -2.59735e-06">
+                    <body name="right_link3" pos="0 0.73 0" quat="-2.59734e-06 0.707105 0.707108 -2.59735e-06">
                         <inertial pos="0.0361013 -2.09104e-06 -0.00436987" quat="0.529158 0.469078 0.469085 0.529072" mass="7.87585" diaginertia="0.036645 0.0320625 0.019885"/>
-                        <joint name="left_joint3" pos="0 0 0" axis="0 0 1" range="-2.61 2.61"/>
+                        <joint name="right_joint3" pos="0 0 0" axis="0 0 1" range="-2.61 2.61"/>
                         <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="elfin_left_link3"/>
-                        <body name="left_link4" quat="0.499998 0.5 0.500002 0.5">
+                        <body name="right_link4" quat="0.499998 0.5 0.500002 0.5">
                             <inertial pos="3.69862e-05 -0.0650226 0.320849" quat="0.992592 0.121493 0.000259111 -0.000578748" mass="7.61388" diaginertia="0.16194 0.159247 0.0128573"/>
-                            <joint name="left_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                            <joint name="right_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
                             <geom type="mesh" rgba="0.4 0.6 0.6 1" mesh="elfin_left_link4"/>
-                            <body name="left_link5" pos="0 0 0.57" quat="0.707105 -0.707108 0 0">
+                            <body name="right_link5" pos="0 0 0.57" quat="0.707105 -0.707108 0 0">
                                 <inertial pos="6.77522e-06 -0.0250232 -0.002491" quat="0.754143 0.656711 0.00028124 -0.000151073" mass="3.39285" diaginertia="0.00944879 0.00740998 0.00543183"/>
-                                <joint name="left_joint5" pos="0 0 0" axis="0 0 1" range="-2.56 2.56"/>
+                                <joint name="right_joint5" pos="0 0 0" axis="0 0 1" range="-2.56 2.56"/>
                                 <geom type="mesh" rgba="0.3 0.7 0.7 1" mesh="elfin_left_link5"/>
-                                <body name="left_link6" quat="0.707105 0.707108 0 0">
+                                <body name="right_link6" quat="0.707105 0.707108 0 0">
                                     <inertial pos="6.22099e-05 -0.00431405 0.139458" quat="0.506404 0.493377 -0.485637 0.514093" mass="0.352384" diaginertia="0.000345682 0.000280644 0.000240015"/>
-                                    <joint name="left_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                                    <joint name="right_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
                                     <geom type="mesh" rgba="0.2 0.8 0.8 1" mesh="elfin_left_link6"/>
 
 <!--                                    &lt;!&ndash; 虚拟连杆直接连接在第6个连杆上 &ndash;&gt;-->
@@ -83,9 +83,9 @@
 <!--                                        </body>-->
 <!--                                    </body>-->
 
-<!--                                    &lt;!&ndash; 左侧末端执行器标记 &ndash;&gt;-->
-                                    <body name="left_end_effector" pos="0 0 0.05">
-                                        <geom name="left_end_marker" type="sphere" size="0.02" rgba="1 0 0 1"/>
+<!--                                    &lt;!&ndash; 右侧末端执行器标记 &ndash;&gt;-->
+                                    <body name="right_end_effector" pos="0 0 0.05">
+                                        <geom name="right_end_marker" type="sphere" size="0.02" rgba="1 0 0 1"/>
                                     </body>
                                 </body>
                             </body>
@@ -95,36 +95,36 @@
             </body>
         </body>
 
-        <!-- 右侧机械臂 (绿色系) -->
-        <body name="right_robot_base" pos="0 0 1.0" euler="1.57 -1.57 0">
+        <!-- 左侧机械臂 (绿色系) -->
+        <body name="left_robot_base" pos="0 0 1.0" euler="1.57 -1.57 0">
             <geom type="mesh" rgba="0.2 0.8 0.2 1" mesh="elfin_right_base"/>
-            <body name="right_link1" pos="0 0 0.262">
+            <body name="left_link1" pos="0 0 0.262">
                 <inertial pos="-1.88838e-06 -0.00357535 -0.0358732" quat="0.998738 0.0502277 4.92096e-05 -7.54994e-05" mass="26.1753" diaginertia="0.235853 0.212365 0.1579"/>
-                <joint name="right_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                <joint name="left_joint1" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
                 <geom type="mesh" rgba="0.3 0.7 0.3 1" mesh="elfin_right_link1"/>
-                <body name="right_link2" quat="0.707105 0.707108 0 0">
+                <body name="left_link2" quat="0.707105 0.707108 0 0">
                     <inertial pos="2.05933e-05 0.292081 0.154042" quat="0.513249 0.485908 -0.486417 0.513681" mass="25.7827" diaginertia="1.61404 1.59116 0.0559177"/>
-                    <joint name="right_joint2" pos="0 0 0" axis="0 0 1" range="-2.35 2.35"/>
+                    <joint name="left_joint2" pos="0 0 0" axis="0 0 1" range="-2.35 2.35"/>
                     <geom type="mesh" rgba="0.4 0.6 0.4 1" mesh="elfin_right_link2"/>
-                    <body name="right_link3" pos="0 0.73 0" quat="-2.59734e-06 0.707105 0.707108 -2.59735e-06">
+                    <body name="left_link3" pos="0 0.73 0" quat="-2.59734e-06 0.707105 0.707108 -2.59735e-06">
                         <inertial pos="0.0361013 -2.09104e-06 -0.00436987" quat="0.529158 0.469078 0.469085 0.529072" mass="7.87585" diaginertia="0.036645 0.0320625 0.019885"/>
-                        <joint name="right_joint3" pos="0 0 0" axis="0 0 1" range="-2.61 2.61"/>
+                        <joint name="left_joint3" pos="0 0 0" axis="0 0 1" range="-2.61 2.61"/>
                         <geom type="mesh" rgba="0.5 0.5 0.5 1" mesh="elfin_right_link3"/>
-                        <body name="right_link4" quat="0.499998 0.5 0.500002 0.5">
+                        <body name="left_link4" quat="0.499998 0.5 0.500002 0.5">
                             <inertial pos="3.69862e-05 -0.0650226 0.320849" quat="0.992592 0.121493 0.000259111 -0.000578748" mass="7.61388" diaginertia="0.16194 0.159247 0.0128573"/>
-                            <joint name="right_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                            <joint name="left_joint4" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
                             <geom type="mesh" rgba="0.6 0.4 0.6 1" mesh="elfin_right_link4"/>
-                            <body name="right_link5" pos="0 0 0.57" quat="0.707105 -0.707108 0 0">
+                            <body name="left_link5" pos="0 0 0.57" quat="0.707105 -0.707108 0 0">
                                 <inertial pos="6.77522e-06 -0.0250232 -0.002491" quat="0.754143 0.656711 0.00028124 -0.000151073" mass="3.39285" diaginertia="0.00944879 0.00740998 0.00543183"/>
-                                <joint name="right_joint5" pos="0 0 0" axis="0 0 1" range="-2.56 2.56"/>
+                                <joint name="left_joint5" pos="0 0 0" axis="0 0 1" range="-2.56 2.56"/>
                                 <geom type="mesh" rgba="0.7 0.3 0.7 1" mesh="elfin_right_link5"/>
-                                <body name="right_link6" quat="0.707105 0.707108 0 0">
+                                <body name="left_link6" quat="0.707105 0.707108 0 0">
                                     <inertial pos="6.22099e-05 -0.00431405 0.139458" quat="0.506404 0.493377 -0.485637 0.514093" mass="0.352384" diaginertia="0.000345682 0.000280644 0.000240015"/>
-                                    <joint name="right_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
+                                    <joint name="left_joint6" pos="0 0 0" axis="0 0 1" range="-3.14 3.14"/>
                                     <geom type="mesh" rgba="0.8 0.2 0.8 1" mesh="elfin_right_link6"/>
-                                    <!-- 右侧末端执行器标记 -->
-                                    <body name="right_end_effector" pos="0 0 0.05">
-                                        <geom name="right_end_marker" type="sphere" size="0.02" rgba="0 1 0 1"/>
+                                    <!-- 左侧末端执行器标记 -->
+                                    <body name="left_end_effector" pos="0 0 0.05">
+                                        <geom name="left_end_marker" type="sphere" size="0.02" rgba="0 1 0 1"/>
                                     </body>
                                 </body>
                             </body>
@@ -140,14 +140,6 @@
 
     <!-- 执行器定义 -->
     <actuator>
-        <!-- 左侧机械臂电机 -->
-        <general name="left_motor1" joint="left_joint1" gainprm="1" ctrlrange="-3.14 3.14"/>
-        <general name="left_motor2" joint="left_joint2" gainprm="1" ctrlrange="-3.14 3.14"/>
-        <general name="left_motor3" joint="left_joint3" gainprm="1" ctrlrange="-3.14 3.14"/>
-        <general name="left_motor4" joint="left_joint4" gainprm="1" ctrlrange="-3.14 3.14"/>
-        <general name="left_motor5" joint="left_joint5" gainprm="1" ctrlrange="-3.14 3.14"/>
-        <general name="left_motor6" joint="left_joint6" gainprm="1" ctrlrange="-3.14 3.14"/>
-
         <!-- 右侧机械臂电机 -->
         <general name="right_motor1" joint="right_joint1" gainprm="1" ctrlrange="-3.14 3.14"/>
         <general name="right_motor2" joint="right_joint2" gainprm="1" ctrlrange="-3.14 3.14"/>
@@ -155,14 +147,20 @@
         <general name="right_motor4" joint="right_joint4" gainprm="1" ctrlrange="-3.14 3.14"/>
         <general name="right_motor5" joint="right_joint5" gainprm="1" ctrlrange="-3.14 3.14"/>
         <general name="right_motor6" joint="right_joint6" gainprm="1" ctrlrange="-3.14 3.14"/>
+
+        <!-- 左侧机械臂电机 -->
+        <general name="left_motor1" joint="left_joint1" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor2" joint="left_joint2" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor3" joint="left_joint3" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor4" joint="left_joint4" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor5" joint="left_joint5" gainprm="1" ctrlrange="-3.14 3.14"/>
+        <general name="left_motor6" joint="left_joint6" gainprm="1" ctrlrange="-3.14 3.14"/>
     </actuator>
     <!-- 关键帧定义 -->
     <keyframe>
-        <key name="home" qpos=" 0.14403416 -0.62792113  1.70052709  3.14 -0.81314359  0.14512927
-        -1.44034160e-01  6.27921130e-01 -1.70052709e+00  1.59265359e-03
- -8.13143590e-01  2.99646338e+00"
-             ctrl=" 0.14403416 -0.62792113  1.70052709  3.14   -0.81314359  0.14512927
-             -1.44034160e-01  6.27921130e-01 -1.70052709e+00  1.59265359e-03
- -8.13143590e-01  2.99646338e+00"/>
+        <key name="home" qpos=" -1.44034160e-01  6.27921130e-01 -1.70052709e+00  1.59265359e-03 -8.13143590e-01  2.99646338e+00
+        0.14403416 -0.62792113  1.70052709  3.14 -0.81314359  0.14512927"
+             ctrl=" -1.44034160e-01  6.27921130e-01 -1.70052709e+00  1.59265359e-03 -8.13143590e-01  2.99646338e+00
+             0.14403416 -0.62792113  1.70052709  3.14   -0.81314359  0.14512927"/>
     </keyframe>
 </mujoco> 

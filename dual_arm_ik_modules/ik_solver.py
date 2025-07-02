@@ -183,6 +183,10 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
         # 每10次迭代打印一次进度
         if len(iteration_history) % 10 == 0:
             print(f"迭代 {len(iteration_history)}: 误差 = {current_error:.6f}")
+        
+        # 打印初始误差
+        if len(iteration_history) == 1:
+            print(f"初始误差: {current_error:.6f}")
 
     # 从运动学链中为活动关节提取关节限制 (bounds)
     bounds_l = [l.bounds for l, active in zip(left_chain.links, left_chain.active_links_mask) if active]
@@ -280,6 +284,9 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
 
     if result.success:
         print("IK solution found.")
+        # 打印最终误差
+        final_error = objective(result.x)
+        print(f"最终误差: {final_error:.6f}")
         return result.x, iteration_history  # 返回找到的关节角度和迭代历史
     else:
         print("IK solution not found.")

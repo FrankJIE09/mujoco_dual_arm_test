@@ -19,6 +19,7 @@ import ikpy.chain
 import ikpy.link
 import time
 import random
+import xml.etree.ElementTree as ET
 
 # 导入现有的运动学模块
 from dual_arm_kinematics import get_kinematics
@@ -49,9 +50,27 @@ class SingleArmIKSolver:
         self.model = mujoco.MjModel.from_xml_path(xml_file)
         self.data = mujoco.MjData(self.model)
         
+        # 加载home关键帧数据
+        self._load_home_pose()
+        
         print("求解器初始化完成")
         print(f"左臂基座位置: {self.T_W_B1[:3, 3]}")
         print(f"右臂基座位置: {self.T_W_B2[:3, 3]}")
+        print(f"Home关键帧关节角度已加载")
+    
+    def _load_home_pose(self):
+        """从XML文件加载home关键帧位姿"""
+        tree = ET.parse(self.xml_file)
+        root = tree.getroot()
+        home_element = root.find(".//key[@name='pos_1']")
+        if home_element is not None:
+            home_qpos_str = home_element.get('qpos')
+            self.home_q = np.fromstring(home_qpos_str, sep=' ')
+            print(f"加载home关键帧: {len(self.home_q)} 个关节角度")
+        else:
+            # 如果没有找到home关键帧，使用默认值
+            self.home_q = np.zeros(12)
+            print("未找到home关键帧，使用零位姿")
     
     def solve_ik(self, target_xyz, target_rpy_deg, arm='left', initial_guess=None):
         """
@@ -86,38 +105,28 @@ class SingleArmIKSolver:
         
         # 设置初始猜测值
         if initial_guess is None:
-            # 使用当前关节角度作为初始猜测
+            # 使用home关键帧的关节角度作为初始猜测
             if arm == 'left':
-                current_q = self.data.qpos[:6]
+                home_q = self.home_q[6:12]  # 左臂使用后6个关节
             else:
-                current_q = self.data.qpos[6:12]
-            initial_guess = np.concatenate(([0], current_q, [0]))
+                home_q = self.home_q[:6]    # 右臂使用前6个关节
+            initial_guess = np.concatenate(([0], home_q, [0]))
         else:
             initial_guess = np.concatenate(([0], initial_guess, [0]))
-        
-        print(f"初始猜测关节角度: {np.rad2deg(initial_guess[1:-1])}")
-        
+
+        print(f"使用home关键帧作为初始猜测: {initial_guess[1:-1]}")
+
         try:
-            # 使用更好的初始猜测来改善姿态精度
-            # 根据目标姿态调整初始猜测
-            if target_rpy_deg[1] > 45:  # 如果pitch角度大，可能是向下指向
-                better_initial_guess = np.array([0, -45, 90, 0, -45, 0]) * np.pi/180
-            elif abs(target_rpy_deg[0]) > 90:  # 如果roll角度大，可能需要特殊配置
-                better_initial_guess = np.array([90, -30, 60, 30, 0, 0]) * np.pi/180
-            else:  # 默认工作姿态
-                better_initial_guess = np.array([0, -30, 60, 30, 0, 0]) * np.pi/180
             
             # 构造完整的关节角度向量（添加固定关节）
-            full_initial_guess = np.concatenate(([0], better_initial_guess, [0]))
-            
-            print(f"使用改进的初始猜测: {np.rad2deg(better_initial_guess)}")
-            
-            # 使用ikpy求解逆运动学
+            full_initial_guess = initial_guess
+
+            # 使用ikpy求解逆运动学 - 修复参数错误
             solution_full = chain.inverse_kinematics(
                 target_position=target_position,
                 target_orientation=target_orientation,
                 initial_position=full_initial_guess,
-                orientation_mode = "all"
+                orientation_mode="all"              # 恢复姿态约束
             )
             
             # 提取关节角度（去除首尾的虚拟关节）
@@ -259,12 +268,12 @@ class SingleArmIKSolver:
                 if 'left' in results_dict and results_dict['left']['success']:
                     q_left = results_dict['left']['joint_angles']
                     for i in range(6):
-                        self.data.qvel[i] = 10*(q_left[i]-self.data.qpos[i])
+                        self.data.qvel[i+6] = 10*(q_left[i]-self.data.qpos[i+6])  # 左臂使用后6个关节
 
                 if 'right' in results_dict and results_dict['right']['success']:
                     q_right = results_dict['right']['joint_angles']
                     for i in range(6):
-                        self.data.qvel[i+6] = 10*(q_right[i]-self.data.qpos[i+6])
+                        self.data.qvel[i] = 10*(q_right[i]-self.data.qpos[i])      # 右臂使用前6个关节
 
                         # self.data.qpos[i + 6] = q_right[i]
                 
@@ -291,8 +300,8 @@ def main():
     print("\n=== 单臂逆运动学演示 ===")
     
     # 定义目标位姿（基座坐标系）
-    target_xyz = [-0.1, -0.4, 0.5]   # 位置
-    target_rpy = [180, 0, 0]        # 姿态（度）
+    target_xyz = [-0.2, 0.6, 0.2]   # 位置
+    target_rpy = [-150, -90, -150]        # 姿态（度）
     
     print(f"目标位置: {target_xyz}")
     print(f"目标姿态: {target_rpy}")
@@ -301,8 +310,8 @@ def main():
     left_result = solver.solve_ik(target_xyz, target_rpy, arm='left')
     
     # 求解右臂逆运动学（相对应的位置）
-    right_target_xyz = [0.1, -0.4, 0.5]  # 右臂对应位置
-    right_target_rpy = [180, 0, 0]        # 姿态（度）
+    right_target_xyz = [-0.2, -0.6, 0.2]  # 右臂对应位置
+    right_target_rpy = [-150, -90, 30]        # 姿态（度）
 
     right_result = solver.solve_ik(right_target_xyz, right_target_rpy, arm='right')
     

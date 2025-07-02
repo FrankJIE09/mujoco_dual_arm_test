@@ -39,7 +39,7 @@ from dual_arm_ik_modules.ik_solver import solve_dual_arm_ik
 class DualArmPathPlanner:
     """
     双臂路径规划器类
-
+    
     该类封装了双臂协同操作的路径规划功能，包括：
     - 路径点生成
     - 路径插值
@@ -49,7 +49,7 @@ class DualArmPathPlanner:
     def __init__(self, xml_file):
         """
         初始化路径规划器
-
+        
         Args:
             xml_file (str): MuJoCo XML文件路径
         """
@@ -79,15 +79,15 @@ class DualArmPathPlanner:
     def _compute_virtual_object_pose(self, q):
         """
         计算给定关节角度下的虚拟物体中心位姿
-
+        
         Args:
             q (np.ndarray): 12个关节角度
-
+            
         Returns:
             np.ndarray: 4x4变换矩阵，虚拟物体中心的位姿
         """
-        q1 = q[:6]  # 右臂6个关节角度
-        q2 = q[6:]  # 左臂6个关节角度
+        q1 = q[:6]  # 左臂6个关节角度
+        q2 = q[6:]  # 右臂6个关节角度
 
         # ikpy正向运动学
         fk_q1 = np.concatenate(([0], q1, [0]))
@@ -98,10 +98,7 @@ class DualArmPathPlanner:
 
         # 虚拟物体中心的变换关系（与IK求解器中的定义一致）
         T_E1_M = np.eye(4)
-        T_E1_M[:3, :3] = Rotation.as_matrix(Rotation.from_euler("XYZ", (0, 0, 0), degrees=True))
-        T_E1_M[0, 3] = 0.0  # X轴
-        T_E1_M[1, 3] = 0.0  # Y轴
-        T_E1_M[2, 3] = 0.0  # Z轴
+        T_E1_M[2, 3] = 0.0  # Z轴偏移0.0m（与IK求解器保持一致）
 
         T_W_M = T_W_E1 @ T_E1_M
         return T_W_M
@@ -109,12 +106,12 @@ class DualArmPathPlanner:
     def plan_straight_line_path(self, start_pose, end_pose, num_points=20):
         """
         规划直线路径
-
+        
         Args:
             start_pose (np.ndarray): 起始位姿 (4x4矩阵)
             end_pose (np.ndarray): 终点位姿 (4x4矩阵)
             num_points (int): 路径点数量
-
+            
         Returns:
             list: 路径点列表，每个元素是4x4变换矩阵
         """
@@ -153,13 +150,13 @@ class DualArmPathPlanner:
     def plan_circular_path(self, center_pose, radius=0.2, num_points=30, axis='z'):
         """
         规划圆形路径
-
+        
         Args:
             center_pose (np.ndarray): 圆心位姿 (4x4矩阵)
             radius (float): 圆半径 (米)
             num_points (int): 路径点数量
             axis (str): 旋转轴 ('x', 'y', 或 'z')
-
+            
         Returns:
             list: 路径点列表，每个元素是4x4变换矩阵
         """
@@ -196,13 +193,13 @@ class DualArmPathPlanner:
     def plan_bezier_path(self, start_pose, end_pose, control_points=None, num_points=25):
         """
         规划贝塞尔曲线路径
-
+        
         Args:
             start_pose (np.ndarray): 起始位姿 (4x4矩阵)
             end_pose (np.ndarray): 终点位姿 (4x4矩阵)
             control_points (list): 控制点列表，如果为None则自动生成
             num_points (int): 路径点数量
-
+            
         Returns:
             list: 路径点列表，每个元素是4x4变换矩阵
         """
@@ -249,11 +246,11 @@ class DualArmPathPlanner:
     def _bezier_curve(self, control_points, t_values):
         """
         计算贝塞尔曲线
-
+        
         Args:
             control_points (np.ndarray): 控制点数组 (n, 3)
             t_values (np.ndarray): 参数值数组
-
+            
         Returns:
             np.ndarray: 曲线点数组 (len(t_values), 3)
         """
@@ -285,12 +282,12 @@ class DualArmPathPlanner:
     def solve_ik_for_path(self, path_poses, initial_q=None, total_time=5.0):
         """
         为路径上的每个点求解逆运动学
-
+        
         Args:
             path_poses (list): 路径点列表
             initial_q (np.ndarray): 初始关节角度，如果为None则使用home位姿
             total_time (float): 总执行时间（秒）
-
+            
         Returns:
             tuple: (关节角度轨迹列表, 时间戳列表, 成功求解的点数)
         """
@@ -344,12 +341,12 @@ class DualArmPathPlanner:
     def smooth_joint_trajectory(self, joint_trajectory, timestamps=None, smoothing_factor=0.1):
         """
         对关节角度轨迹进行平滑处理
-
+        
         Args:
             joint_trajectory (list): 关节角度轨迹
             timestamps (list): 时间戳列表，如果为None则使用均匀时间分布
             smoothing_factor (float): 平滑因子 (0-1)
-
+            
         Returns:
             tuple: (平滑后的关节角度轨迹, 时间戳列表)
         """
@@ -387,12 +384,12 @@ class DualArmPathPlanner:
     def interpolate_trajectory(self, joint_trajectory, timestamps, target_dt=0.01):
         """
         对轨迹进行时间插值，生成固定时间步长的轨迹
-
+        
         Args:
             joint_trajectory (list): 关节角度轨迹
             timestamps (list): 时间戳列表
             target_dt (float): 目标时间步长（秒）
-
+            
         Returns:
             tuple: (插值后的关节角度轨迹, 插值后的时间戳列表)
         """
@@ -440,7 +437,7 @@ class DualArmPathPlanner:
     def visualize_path_3d(self, path_poses, save_path=None):
         """
         3D可视化路径
-
+        
         Args:
             path_poses (list): 路径点列表
             save_path (str): 保存路径，如果为None则不保存
@@ -505,14 +502,14 @@ class DualArmPathPlanner:
 class DualArmSimulator:
     """
     双臂MuJoCo仿真器类
-
+    
     该类封装了MuJoCo仿真功能，用于可视化路径执行
     """
 
     def __init__(self, xml_file):
         """
         初始化仿真器
-
+        
         Args:
             xml_file (str): MuJoCo XML文件路径
         """
@@ -536,7 +533,7 @@ class DualArmSimulator:
     def animate_trajectory(self, joint_trajectory, dt=0.05, realtime=True):
         """
         动画播放关节轨迹
-
+        
         Args:
             joint_trajectory (list): 关节角度轨迹
             dt (float): 时间步长 (秒)
@@ -753,10 +750,10 @@ def demo_path_planning_system():
 def load_trajectory_data(filename):
     """
     加载保存的轨迹数据
-
+    
     Args:
         filename (str): 轨迹数据文件名
-
+        
     Returns:
         dict: 包含轨迹数据的字典
     """

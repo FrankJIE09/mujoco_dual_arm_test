@@ -65,7 +65,7 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
         # 旋转后，M位于E2的Z轴正方向0.40m处
         T_E2_M = np.eye(4)
         T_E2_M[:3, :3] = Rotation.from_euler('y', 180, degrees=True).as_matrix()
-        T_E2_M[:3, 3] = np.array([0, 0, 0.40])
+        T_E2_M[:3, 3] = np.array([0, 0, 0.0])
     else:
         T_E2_M = np.array(T_E2_M, dtype=float)
 

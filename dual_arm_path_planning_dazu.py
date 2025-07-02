@@ -98,7 +98,7 @@ class DualArmPathPlanner:
         
         # 虚拟物体中心的变换关系（与IK求解器中的定义一致）
         T_E1_M = np.eye(4)
-        T_E1_M[2, 3] = 0.24  # M在E1的Z轴正方向0.24m处
+        T_E1_M[2, 3] = 0.0  # M在E1的Z轴正方向0.24m处
         
         T_W_M = T_W_E1 @ T_E1_M
         return T_W_M

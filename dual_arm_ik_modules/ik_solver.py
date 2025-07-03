@@ -133,11 +133,11 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
         # M的当前位姿可以由任一手臂计算得出，这里用左臂
         # 数学公式: T_W_M = T_W_E1 @ T_E1_M
         T_W_M_from_E1 = T_W_E1 @ T_E1_M
-        
+
         # 位置误差: 计算两个点之间的欧氏距离
         # 数学公式: pos_error = ||p_M - p_target||
         pos_error = np.linalg.norm(T_W_M_from_E1[:3, 3] - target_pose_M[:3, 3])
-        
+
         # 姿态误差: 计算两个姿态四元数之间的点积。点积绝对值越接近1，姿态越接近。
         # 数学公式: orient_error = 1 - |q_M · q_target|
         orient_error_quat = Rotation.from_matrix(T_W_M_from_E1[:3, :3]).as_quat()
@@ -147,11 +147,11 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
         # 2. 闭环约束误差: 两个手臂末端当前的相对位姿与预设的恒定位姿的差距
         # 数学公式: T_E1_E2_current = inv(T_W_E1) @ T_W_E2
         T_E1_E2_current = np.linalg.inv(T_W_E1) @ T_W_E2
-        
+
         # 约束的位置误差
         # 数学公式: constraint_pos_error = ||p_E1_E2_current - p_E1_E2_target||
         constraint_pos_error = np.linalg.norm(T_E1_E2_current[:3, 3] - T_E1_E2[:3, 3])
-        
+
         # 约束的姿态误差
         # 数学公式: constraint_orient_error = 1 - |q_E1_E2_current · q_E1_E2_target|
         constraint_rot_current = Rotation.from_matrix(T_E1_E2_current[:3, :3]).as_quat()
@@ -162,7 +162,7 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
         # 最终的误差是任务空间误差和闭环约束误差的加权和。
         # 我们给闭环约束误差一个很大的权重(100)，因为这个约束必须被严格遵守。
         # 数学公式: total_error = pos_error + orient_error + λ(constraint_pos_error + constraint_orient_error)
-        error = pos_error + orient_error + 100 * (constraint_pos_error + constraint_orient_error)
+        error = 10 * pos_error + 1000 * orient_error + 1000 * (constraint_pos_error + constraint_orient_error)
         return error
 
     def callback(xk):
@@ -179,11 +179,11 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
             'right_arm_angles': xk[6:]
         }
         iteration_history.append(iteration_info)
-        
+
         # 每10次迭代打印一次进度
         if len(iteration_history) % 10 == 0:
             print(f"迭代 {len(iteration_history)}: 误差 = {current_error:.6f}")
-        
+
         # 打印初始误差
         if len(iteration_history) == 1:
             print(f"初始误差: {current_error:.6f}")
@@ -220,14 +220,14 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
 
         # 计算当前两臂末端的相对位姿
         T_E1_E2_current = np.linalg.inv(T_W_E1) @ T_W_E2
-        
+
         # 计算与目标相对位姿的差距
         pos_diff = np.linalg.norm(T_E1_E2_current[:3, 3] - T_E1_E2[:3, 3])
         rot_diff = 1.0 - np.abs(np.dot(
             Rotation.from_matrix(T_E1_E2_current[:3, :3]).as_quat(),
             Rotation.from_matrix(T_E1_E2[:3, :3]).as_quat()
         ))
-        
+
         return pos_diff + rot_diff
 
     def constraint_position_tolerance(q):
@@ -250,10 +250,10 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
         T_B1_E1 = left_chain.forward_kinematics(fk_q1)
         T_W_E1 = T_W_B1 @ T_B1_E1
         T_W_M_from_E1 = T_W_E1 @ T_E1_M
-        
+
         pos_error = np.linalg.norm(T_W_M_from_E1[:3, 3] - target_pose_M[:3, 3])
         tolerance = 0.05  # 5cm容差
-        
+
         return pos_error - tolerance
 
     # 定义约束条件列表
@@ -278,20 +278,58 @@ def solve_dual_arm_ik(target_pose_M, initial_q, chains_and_bases, T_E1_M=None, T
         method='SLSQP',  # 一种支持约束和边界的优化算法
         bounds=bounds,  # 关节角度的边界
         constraints=constraints,  # 约束条件
-        options={'disp': True, 'maxiter': 1000, 'ftol': 1e-4},  # 优化器选项
+        options={'disp': True, 'maxiter': 1000, 'ftol': 1e-3},  # 优化器选项
         callback=callback  # 回调函数，记录迭代历史
     )
 
     if result.success:
         print("IK solution found.")
-        # 打印最终误差
+        # 打印最终误差和详细分解
         final_error = objective(result.x)
         print(f"最终误差: {final_error:.6f}")
+
+        # 计算并打印详细的误差分解
+        q1 = result.x[:6]  # 左臂6个关节角度
+        q2 = result.x[6:]  # 右臂6个关节角度
+
+        # ikpy正向运动学
+        fk_q1 = np.concatenate(([0], q1, [0]))
+        fk_q2 = np.concatenate(([0], q2, [0]))
+
+        T_B1_E1 = left_chain.forward_kinematics(fk_q1)
+        T_B2_E2 = right_chain.forward_kinematics(fk_q2)
+
+        T_W_E1 = T_W_B1 @ T_B1_E1
+        T_W_E2 = T_W_B2 @ T_B2_E2
+
+        # 计算虚拟物体中心的当前位姿
+        T_W_M_from_E1 = T_W_E1 @ T_E1_M
+
+        # 位置误差
+        pos_error = np.linalg.norm(T_W_M_from_E1[:3, 3] - target_pose_M[:3, 3])
+
+        # 姿态误差（RPY分解）
+        current_rot = Rotation.from_matrix(T_W_M_from_E1[:3, :3])
+        target_rot = Rotation.from_matrix(target_pose_M[:3, :3])
+
+        # 计算相对旋转
+        relative_rot = target_rot.inv() * current_rot
+        rpy_error = relative_rot.as_euler('xyz', degrees=True)
+
+        print(f"  位置误差: {pos_error:.6f}m")
+        print(f"  姿态误差(RPY): [{rpy_error[0]:.3f}, {rpy_error[1]:.3f}, {rpy_error[2]:.3f}]度")
+
+        # 计算并打印约束误差
+        closed_loop_error = constraint_closed_loop(result.x)
+        position_tolerance_error = constraint_position_tolerance(result.x)
+        print(f"  闭环约束误差: {closed_loop_error:.6f}")
+        print(f"  位置容差约束误差: {position_tolerance_error:.6f}m (应<=0)")
+
         return result.x, iteration_history  # 返回找到的关节角度和迭代历史
     else:
         print("IK solution not found.")
         print(result.message)
-        return None, iteration_history 
+        return None, iteration_history
 
 
 def create_transform_matrix(position=None, rotation=None, rotation_type='euler', rotation_unit='degrees'):
@@ -324,15 +362,15 @@ def create_transform_matrix(position=None, rotation=None, rotation_type='euler',
                                   rotation_type='euler')
     """
     T = np.eye(4)
-    
+
     # 设置位置
     if position is not None:
         T[:3, 3] = np.array(position)
-    
+
     # 设置旋转
     if rotation is not None:
         rotation = np.array(rotation)
-        
+
         if rotation_type == 'euler':
             # 欧拉角（XYZ顺序）
             if rotation_unit == 'degrees':
@@ -352,9 +390,9 @@ def create_transform_matrix(position=None, rotation=None, rotation_type='euler',
             R = np.array(rotation)
         else:
             raise ValueError(f"未知的旋转类型: {rotation_type}")
-        
+
         T[:3, :3] = R
-    
+
     return T
 
 
@@ -367,12 +405,12 @@ def create_default_transforms():
     """
     # 左臂末端到虚拟物体中心：无偏移
     T_E1_M = create_transform_matrix(position=[0, 0, 0])
-    
+
     # 右臂末端到虚拟物体中心：Y轴旋转180度，Z轴偏移0.40m
-    T_E2_M = create_transform_matrix(position=[0, 0, 0.40], 
-                                    rotation=[0, 180, 0], 
-                                    rotation_type='euler')
-    
+    T_E2_M = create_transform_matrix(position=[0, 0, 0.40],
+                                     rotation=[0, 180, 0],
+                                     rotation_type='euler')
+
     return T_E1_M, T_E2_M
 
 
@@ -395,15 +433,15 @@ def create_grasp_transforms(object_width, grasp_offset=0.0):
         T_E1_M, T_E2_M = create_grasp_transforms(0.30, grasp_offset=-0.05)
     """
     half_width = object_width / 2.0 + grasp_offset
-    
+
     # 左臂末端到物体中心：沿Z轴负方向偏移
     T_E1_M = create_transform_matrix(position=[0, 0, -half_width])
-    
+
     # 右臂末端到物体中心：Y轴旋转180度，沿Z轴正方向偏移
-    T_E2_M = create_transform_matrix(position=[0, 0, half_width], 
-                                    rotation=[0, 180, 0], 
-                                    rotation_type='euler')
-    
+    T_E2_M = create_transform_matrix(position=[0, 0, half_width],
+                                     rotation=[0, 180, 0],
+                                     rotation_type='euler')
+
     return T_E1_M, T_E2_M
 
 
@@ -416,17 +454,17 @@ def print_transform_info(T, name="变换矩阵"):
         name (str): 矩阵名称
     """
     print(f"\n=== {name} ===")
-    print(f"位置 (x, y, z): [{T[0,3]:.6f}, {T[1,3]:.6f}, {T[2,3]:.6f}]")
-    
+    print(f"位置 (x, y, z): [{T[0, 3]:.6f}, {T[1, 3]:.6f}, {T[2, 3]:.6f}]")
+
     # 提取欧拉角
     rotation = Rotation.from_matrix(T[:3, :3])
     euler_xyz = rotation.as_euler('xyz', degrees=True)
     print(f"欧拉角 XYZ (度): [{euler_xyz[0]:.2f}, {euler_xyz[1]:.2f}, {euler_xyz[2]:.2f}]")
-    
+
     # 提取四元数
     quat = rotation.as_quat()
     print(f"四元数 (x,y,z,w): [{quat[0]:.4f}, {quat[1]:.4f}, {quat[2]:.4f}, {quat[3]:.4f}]")
-    
+
     print("完整变换矩阵:")
     print(T)
-    print("-" * 50) 
+    print("-" * 50)

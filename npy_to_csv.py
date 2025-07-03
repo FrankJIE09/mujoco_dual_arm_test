@@ -12,21 +12,41 @@ def npy_to_csv(npy_path, csv_path=None):
         
         # 检查数据格式
         if 'joint_trajectory' in data and 'timestamps' in data:
-            df = pd.DataFrame(data['joint_trajectory'])
-            df['timestamp'] = data['timestamps']
+            trajectory = data['joint_trajectory']
+            timestamps = data['timestamps']
         elif isinstance(data, np.ndarray):
             # 如果直接是数组，假设是关节轨迹
-            df = pd.DataFrame(data)
-            df['timestamp'] = np.arange(len(data)) * 0.02  # 假设20ms时间步长
+            trajectory = data
+            timestamps = np.arange(len(data)) * 0.02  # 假设20ms时间步长
         else:
             print(f"警告：{npy_path} 数据格式不支持，跳过")
             return False
+        
+        # 数据质量检查
+        print(f"原始轨迹点数: {len(trajectory)}")
+        print("保留所有数据点，不进行去重处理")
+        
+        # 创建DataFrame
+        df = pd.DataFrame(trajectory)
+        df['timestamp'] = timestamps
+        
+        # 添加列名
+        joint_names = [f'joint_{i}' for i in range(trajectory.shape[1])]
+        df.columns = joint_names + ['timestamp']
             
         if csv_path is None:
             csv_path = os.path.splitext(npy_path)[0] + '.csv'
         
         df.to_csv(csv_path, index=False)
         print(f"✅ 已将 {npy_path} 转换为 {csv_path}")
+        
+        # 打印数据统计信息
+        print(f"📊 数据统计:")
+        print(f"   - 轨迹点数: {len(trajectory)}")
+        print(f"   - 关节数量: {trajectory.shape[1]}")
+        print(f"   - 时间范围: {timestamps[0]:.3f}s - {timestamps[-1]:.3f}s")
+        print(f"   - 平均时间步长: {(timestamps[-1] - timestamps[0]) / (len(timestamps) - 1):.3f}s")
+        
         return True
         
     except Exception as e:

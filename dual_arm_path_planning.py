@@ -103,7 +103,7 @@ class DualArmPathPlanner:
         T_W_M = T_W_E1 @ T_E1_M
         return T_W_M
 
-    def plan_straight_line_path(self, start_pose, end_pose, num_points=20):
+    def plan_straight_line_path(self, start_pose, end_pose, num_points=30):
         """
         规划直线路径
         
@@ -147,7 +147,7 @@ class DualArmPathPlanner:
 
         return path_poses
 
-    def plan_circular_path(self, center_pose, radius=0.2, num_points=30, axis='z'):
+    def plan_circular_path(self, center_pose, radius=0.2, num_points=40, axis='z'):
         """
         规划圆形路径
         
@@ -190,7 +190,7 @@ class DualArmPathPlanner:
 
         return path_poses
 
-    def plan_bezier_path(self, start_pose, end_pose, control_points=None, num_points=25):
+    def plan_bezier_path(self, start_pose, end_pose, control_points=None, num_points=40):
         """
         规划贝塞尔曲线路径
         
@@ -281,7 +281,7 @@ class DualArmPathPlanner:
 
     def solve_ik_for_path(self, path_poses, initial_q=None, total_time=5.0):
         """
-        为路径上的每个点求解逆运动学
+        为路径上的每个点求解逆运动学，使用多初始值策略
         
         Args:
             path_poses (list): 路径点列表
@@ -307,45 +307,135 @@ class DualArmPathPlanner:
         for i, (target_pose, t) in enumerate(zip(path_poses, time_points)):
             print(f"求解路径点 {i + 1}/{len(path_poses)} (t={t:.2f}s)")
 
-            # 使用上一个成功的解作为初始猜测
+            # 策略1：使用上次成功的解作为初始值
+            initial_guess_1 = current_q.copy()
+            
+            # 策略2：通过点位计算逆解作为初始值（使用home位姿作为基础）
+            initial_guess_2 = self.home_q.copy()
+            
+            # 策略3：使用上次解的小幅扰动（防止突变）
+            if joint_trajectory:
+                last_solution = joint_trajectory[-1].copy()
+                # 小幅随机扰动（±0.05弧度，约±3度）
+                perturbation = np.random.uniform(-0.05, 0.05, 12)
+                initial_guess_3 = last_solution + perturbation
+            else:
+                initial_guess_3 = current_q.copy()
+            
+            # 策略4：使用插值预测作为初始值
+            if len(joint_trajectory) >= 2:
+                # 基于前两个点的变化趋势预测下一个点
+                prev_q = joint_trajectory[-2]
+                last_q = joint_trajectory[-1]
+                trend = last_q - prev_q
+                # 使用趋势预测，但限制变化幅度
+                max_change = 0.1  # 最大变化0.1弧度
+                trend_magnitude = np.linalg.norm(trend)
+                if trend_magnitude > max_change:
+                    trend = trend * (max_change / trend_magnitude)
+                initial_guess_4 = last_q + trend
+            else:
+                initial_guess_4 = current_q.copy()
+
+            # 尝试多个初始值，选择最佳解
+            best_solution = None
+            best_error = float('inf')
+            best_initial_used = 1
+            
+            initial_guesses = [
+                ("上次解", initial_guess_1),
+                ("home位姿", initial_guess_2),
+                ("小幅扰动", initial_guess_3),
+                ("趋势预测", initial_guess_4)
+            ]
+
             T_E1_M = np.eye(4)
             T_E1_M[2, 3] = 0.0
             T_E2_M = np.eye(4)
             T_E2_M[:3, :3] = Rotation.from_euler('XYZ', (0, 0, 0), degrees=True).as_matrix()
             T_E2_M[:3, 3] = np.array([-0.8, 0, 0.0])
-            solution_q, _ = solve_dual_arm_ik(target_pose, current_q, self.kinematics_data,
-                                              T_E1_M=T_E1_M, T_E2_M=T_E2_M)
-            if solution_q is not None:
-                joint_trajectory.append(solution_q.copy())
+
+            for strategy_name, initial_guess in initial_guesses:
+                solution_q, error = solve_dual_arm_ik(target_pose, initial_guess, self.kinematics_data,
+                                                     T_E1_M=T_E1_M, T_E2_M=T_E2_M)
+                
+                if solution_q is not None:
+                    # 计算位置误差
+                    actual_pose = self._compute_virtual_object_pose(solution_q)
+                    pos_error = np.linalg.norm(actual_pose[:3, 3] - target_pose[:3, 3])
+                    
+                    # 计算关节变化幅度（防止突变）
+                    joint_change = 0
+                    if joint_trajectory:
+                        joint_change = np.linalg.norm(solution_q - joint_trajectory[-1])
+                    
+                    # 综合评分：位置误差 + 关节变化惩罚
+                    joint_change_penalty = joint_change * 0.1  # 关节变化惩罚权重
+                    total_score = pos_error + joint_change_penalty
+                    
+                    if total_score < best_error:
+                        best_error = total_score
+                        best_solution = solution_q.copy()
+                        best_initial_used = initial_guesses.index((strategy_name, initial_guess)) + 1
+
+            if best_solution is not None:
+                joint_trajectory.append(best_solution.copy())
                 timestamps.append(t)
-                current_q = solution_q.copy()  # 更新初始猜测
+                current_q = best_solution.copy()
                 successful_solves += 1
 
                 # 验证解的质量
-                actual_pose = self._compute_virtual_object_pose(solution_q)
+                actual_pose = self._compute_virtual_object_pose(best_solution)
                 pos_error = np.linalg.norm(actual_pose[:3, 3] - target_pose[:3, 3])
-                print(f"  成功! 位置误差: {pos_error:.4f}m")
+                
+                # 计算关节变化
+                joint_change = 0
+                if len(joint_trajectory) > 1:
+                    joint_change = np.linalg.norm(best_solution - joint_trajectory[-2])
+                
+                print(f"  成功! 使用策略{best_initial_used} 位置误差: {pos_error:.4f}m 关节变化: {joint_change:.4f}rad")
             else:
                 print(f"  失败! 在点 {i + 1} 处未找到解")
-                # 使用上一个成功的解作为备用
+                # 改进的备用策略
                 if joint_trajectory:
-                    joint_trajectory.append(joint_trajectory[-1].copy())
-                    timestamps.append(t)
+                    # 使用上一个成功的解，但添加更小的随机扰动
+                    last_solution = joint_trajectory[-1].copy()
+                    # 更小的随机扰动（±0.02弧度，约±1度）
+                    perturbation = np.random.uniform(-0.02, 0.02, 12)
+                    perturbed_q = last_solution + perturbation
+                    
+                    # 再次尝试求解
+                    retry_solution, _ = solve_dual_arm_ik(target_pose, perturbed_q, self.kinematics_data,
+                                                         T_E1_M=T_E1_M, T_E2_M=T_E2_M)
+                    if retry_solution is not None:
+                        joint_trajectory.append(retry_solution.copy())
+                        timestamps.append(t)
+                        current_q = retry_solution.copy()
+                        successful_solves += 1
+                        print(f"  重试成功! 使用小幅扰动初始猜测")
+                    else:
+                        # 如果重试也失败，使用上一个解（保持连续性）
+                        joint_trajectory.append(last_solution.copy())
+                        timestamps.append(t)
+                        current_q = last_solution.copy()
+                        print(f"  使用上一个解（保持连续性）")
                 else:
+                    # 如果还没有成功的解，使用初始猜测
                     joint_trajectory.append(current_q.copy())
                     timestamps.append(t)
+                    print(f"  使用初始猜测")
 
         print(f"逆运动学求解完成: {successful_solves}/{len(path_poses)} 个点成功求解")
         return joint_trajectory, timestamps, successful_solves
 
-    def smooth_joint_trajectory(self, joint_trajectory, timestamps=None, smoothing_factor=0.1):
+    def smooth_joint_trajectory(self, joint_trajectory, timestamps=None, smoothing_factor=0.05):
         """
         对关节角度轨迹进行平滑处理
         
         Args:
             joint_trajectory (list): 关节角度轨迹
             timestamps (list): 时间戳列表，如果为None则使用均匀时间分布
-            smoothing_factor (float): 平滑因子 (0-1)
+            smoothing_factor (float): 平滑因子 (0-1)，默认值降低到0.05
             
         Returns:
             tuple: (平滑后的关节角度轨迹, 时间戳列表)
@@ -360,17 +450,22 @@ class DualArmPathPlanner:
         trajectory_array = np.array(joint_trajectory)
         smoothed_trajectory = trajectory_array.copy()
 
-        # 使用移动平均滤波
+        # 使用移动平均滤波，但减少窗口大小
         window_size = max(3, int(len(joint_trajectory) * smoothing_factor))
         if window_size % 2 == 0:
             window_size += 1  # 确保窗口大小为奇数
+
+        # 限制最大窗口大小，避免过度平滑
+        window_size = min(window_size, 5)  # 最大窗口大小为5
 
         half_window = window_size // 2
 
         for i in range(half_window, len(trajectory_array) - half_window):
             for j in range(12):  # 12个关节
                 window_values = trajectory_array[i - half_window:i + half_window + 1, j]
-                smoothed_trajectory[i, j] = np.mean(window_values)
+                # 使用加权平均，中心点权重更高
+                weights = np.array([0.2, 0.6, 0.2]) if window_size == 3 else np.array([0.1, 0.2, 0.4, 0.2, 0.1])
+                smoothed_trajectory[i, j] = np.average(window_values, weights=weights)
 
         if timestamps is None:
             timestamps = np.linspace(0, 5.0, len(joint_trajectory))
@@ -381,58 +476,64 @@ class DualArmPathPlanner:
 
         return smoothed_trajectory.tolist(), timestamps
 
-    def interpolate_trajectory(self, joint_trajectory, timestamps, target_dt=0.01):
+    def interpolate_trajectory(self, joint_trajectory, timestamps=None, target_dt=0.02):
         """
-        对轨迹进行时间插值，生成固定时间步长的轨迹
+        对轨迹进行均匀插值，生成固定数量的轨迹点
         
         Args:
             joint_trajectory (list): 关节角度轨迹
-            timestamps (list): 时间戳列表
-            target_dt (float): 目标时间步长（秒）
+            timestamps (list): 时间戳列表（可选，不使用）
+            target_dt (float): 目标时间步长（秒），用于计算插值点数
             
         Returns:
             tuple: (插值后的关节角度轨迹, 插值后的时间戳列表)
         """
         if len(joint_trajectory) < 2:
-            return joint_trajectory, timestamps
+            return joint_trajectory, [0.0] if timestamps is None else timestamps
 
-        print(f"对轨迹进行时间插值，目标时间步长: {target_dt}s")
+        print(f"对轨迹进行均匀插值，目标时间步长: {target_dt}s")
 
-        # 确保timestamps是numpy数组
-        if isinstance(timestamps, list):
-            timestamps = np.array(timestamps)
-
-        # 创建时间轴
-        t_start = timestamps[0]
-        t_end = timestamps[-1]
-        t_interp = np.arange(t_start, t_end + target_dt, target_dt)
+        # 计算插值点数
+        # 假设总时间为5秒，根据target_dt计算点数
+        total_time = 5.0  # 默认总时间
+        num_points = max(2, int(total_time / target_dt) + 1)
+        
+        print(f"目标插值点数: {num_points}")
 
         # 对每个关节进行插值
         trajectory_array = np.array(joint_trajectory)
         interpolated_trajectory = []
 
-        for t in t_interp:
-            # 找到最近的两个时间点
-            if t <= timestamps[0]:
+        # 生成均匀的参数值 (0到1)
+        t_values = np.linspace(0, 1, num_points)
+
+        for t in t_values:
+            # 找到对应的轨迹区间
+            if t <= 0:
                 q = trajectory_array[0]
-            elif t >= timestamps[-1]:
+            elif t >= 1:
                 q = trajectory_array[-1]
             else:
+                # 计算在原始轨迹中的位置
+                idx = t * (len(trajectory_array) - 1)
+                idx_low = int(idx)
+                idx_high = min(idx_low + 1, len(trajectory_array) - 1)
+                
+                # 计算插值权重
+                alpha = idx - idx_low
+                
                 # 线性插值
-                for i in range(len(timestamps) - 1):
-                    if timestamps[i] <= t <= timestamps[i + 1]:
-                        t1, t2 = timestamps[i], timestamps[i + 1]
-                        q1, q2 = trajectory_array[i], trajectory_array[i + 1]
-                        alpha = (t - t1) / (t2 - t1)
-                        q = q1 + alpha * (q2 - q1)
-                        break
-                else:
-                    q = trajectory_array[-1]
+                q1 = trajectory_array[idx_low]
+                q2 = trajectory_array[idx_high]
+                q = q1 + alpha * (q2 - q1)
 
             interpolated_trajectory.append(q)
 
+        # 生成对应的时间戳
+        interpolated_timestamps = np.linspace(0, total_time, num_points)
+
         print(f"插值完成: {len(interpolated_trajectory)} 个轨迹点")
-        return interpolated_trajectory, t_interp.tolist()
+        return interpolated_trajectory, interpolated_timestamps.tolist()
 
     def visualize_path_3d(self, path_poses, save_path=None):
         """
@@ -640,7 +741,7 @@ def demo_path_planning_system():
 
         # 终点位姿：向右移动20cm，向上移动15cm
         end_pose = start_pose.copy()
-        end_pose[:3, 3] += np.array([0.2, 0.1, 0.15])
+        end_pose[:3, 3] += np.array([0.5, -0.4, 0.3])
 
         print(f"起始位置: {start_pose[:3, 3]}")
         print(f"目标位置: {end_pose[:3, 3]}")
@@ -652,12 +753,12 @@ def demo_path_planning_system():
         path_type = "straight"  # 可选: "straight", "circular", "bezier"
 
         if path_type == "straight":
-            path_poses = planner.plan_straight_line_path(start_pose, end_pose, num_points=15)
+            path_poses = planner.plan_straight_line_path(start_pose, end_pose, num_points=30)
         elif path_type == "circular":
             # 以起始位置为中心规划圆形路径
-            path_poses = planner.plan_circular_path(start_pose, radius=0.15, num_points=20)
+            path_poses = planner.plan_circular_path(start_pose, radius=0.15, num_points=40)
         else:  # bezier
-            path_poses = planner.plan_bezier_path(start_pose, end_pose, num_points=30)
+            path_poses = planner.plan_bezier_path(start_pose, end_pose, num_points=50)
 
         print(f"生成了 {len(path_poses)} 个路径点")
 
@@ -681,13 +782,13 @@ def demo_path_planning_system():
         # 6. 平滑轨迹
         print("\n步骤5: 平滑轨迹")
         smoothed_trajectory, smoothed_timestamps = planner.smooth_joint_trajectory(
-            joint_trajectory, timestamps, smoothing_factor=0.2
+            joint_trajectory, timestamps, smoothing_factor=0.05  # 降低平滑因子
         )
 
         # 7. 时间插值（可选）
         print("\n步骤6: 时间插值")
         interpolated_trajectory, interpolated_timestamps = planner.interpolate_trajectory(
-            smoothed_trajectory, smoothed_timestamps, target_dt=0.02
+            smoothed_trajectory, timestamps, target_dt=0.02  # 从0.05减少到0.02，获得更多插值点
         )
 
         print(f"插值后轨迹点数: {len(interpolated_trajectory)}")
@@ -696,7 +797,7 @@ def demo_path_planning_system():
         # 8. MuJoCo仿真
         print("\n步骤7: MuJoCo仿真")
         simulator = DualArmSimulator(xml_file)
-        simulator.animate_trajectory(interpolated_trajectory, dt=0.02, realtime=True)
+        simulator.animate_trajectory(smoothed_trajectory, dt=0.2, realtime=True)
 
         # 9. 保存结果（包含时间戳）
         print("\n步骤8: 保存结果")
